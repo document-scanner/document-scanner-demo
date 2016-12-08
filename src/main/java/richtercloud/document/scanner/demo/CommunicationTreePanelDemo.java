@@ -17,6 +17,8 @@ package richtercloud.document.scanner.demo;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,9 +26,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.swing.GroupLayout;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -35,6 +34,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import richtercloud.document.scanner.components.tag.MemoryTagStorage;
@@ -66,18 +66,20 @@ import richtercloud.reflection.form.builder.fieldhandler.FieldHandler;
 import richtercloud.reflection.form.builder.fieldhandler.FieldHandlingException;
 import richtercloud.reflection.form.builder.fieldhandler.MappingFieldHandler;
 import richtercloud.reflection.form.builder.fieldhandler.factory.AmountMoneyMappingFieldHandlerFactory;
-import richtercloud.reflection.form.builder.jpa.IdGenerator;
 import richtercloud.reflection.form.builder.jpa.JPACachedFieldRetriever;
 import richtercloud.reflection.form.builder.jpa.JPAReflectionFormBuilder;
-import richtercloud.reflection.form.builder.jpa.SequentialIdGenerator;
 import richtercloud.reflection.form.builder.jpa.WarningHandler;
 import richtercloud.reflection.form.builder.jpa.fieldhandler.factory.JPAAmountMoneyMappingFieldHandlerFactory;
 import richtercloud.reflection.form.builder.jpa.idapplier.GeneratedValueIdApplier;
 import richtercloud.reflection.form.builder.jpa.idapplier.IdApplier;
+import richtercloud.reflection.form.builder.jpa.storage.DerbyEmbeddedPersistenceStorage;
+import richtercloud.reflection.form.builder.jpa.storage.DerbyEmbeddedPersistenceStorageConf;
+import richtercloud.reflection.form.builder.jpa.storage.PersistenceStorage;
 import richtercloud.reflection.form.builder.jpa.typehandler.ElementCollectionTypeHandler;
 import richtercloud.reflection.form.builder.jpa.typehandler.ToManyTypeHandler;
 import richtercloud.reflection.form.builder.jpa.typehandler.ToOneTypeHandler;
 import richtercloud.reflection.form.builder.jpa.typehandler.factory.JPAAmountMoneyMappingTypeHandlerFactory;
+import richtercloud.reflection.form.builder.storage.StorageException;
 import richtercloud.reflection.form.builder.typehandler.TypeHandler;
 
 /**
@@ -91,7 +93,6 @@ public class CommunicationTreePanelDemo extends JFrame {
     private final static String AMOUNT_MONEY_USAGE_STATISTICS_STORAGE_FILE_NAME = "money-usage-statistics-storage.xml";
     private final static String AMOUNT_MONEY_CURRENCY_STORAGE_FILE_NAME = "currency-storage.xml";
     private final ReflectionFormPanel reflectionFormPanel;
-    private final IdGenerator idGenerator = SequentialIdGenerator.getInstance();
     private final MessageHandler messageHandler = new LoggerMessageHandler(LOGGER);
     private final ConfirmMessageHandler confirmMessageHandler = new DialogConfirmMessageHandler(this);
     private final ReflectionFormBuilder reflectionFormBuilder;
@@ -99,11 +100,33 @@ public class CommunicationTreePanelDemo extends JFrame {
     private final IdApplier idApplier = new GeneratedValueIdApplier();
     private final Map<Class<?>, WarningHandler<?>> warningHandlers = new HashMap<>();
     private final TagStorage tagStorage = new MemoryTagStorage();
+    private final boolean deleteDatabase = true;
 
-    public CommunicationTreePanelDemo() throws IllegalArgumentException, IllegalAccessException, IOException, InstantiationException, InvocationTargetException, NoSuchMethodException, FieldHandlingException {
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("richtercloud_document-scanner-demo_jar_1.0-SNAPSHOTPU");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        this.reflectionFormBuilder = new JPAReflectionFormBuilder(entityManager,
+    public CommunicationTreePanelDemo() throws IllegalArgumentException, IllegalAccessException, IOException, InstantiationException, InvocationTargetException, NoSuchMethodException, FieldHandlingException, StorageException, SQLException, NoSuchFieldException {
+        File databaseDir = new File("/tmp/communication-tree-panel-demo");
+        File schemeChecksumFile = new File("/tmp/communcation-tree-panel-demo-checksum-file");
+        DerbyEmbeddedPersistenceStorageConf storageConf = new DerbyEmbeddedPersistenceStorageConf(DocumentScanner.ENTITY_CLASSES,
+                databaseDir,
+                schemeChecksumFile);
+        DriverManager.getConnection(storageConf.getConnectionURL()+";create=true");
+        PersistenceStorage storage = new DerbyEmbeddedPersistenceStorage(storageConf);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            LOGGER.info("Shutting down storage");
+            storage.shutdown();
+            LOGGER.info("Storage shut down");
+            if(deleteDatabase) {
+                try {
+                    FileUtils.deleteDirectory(databaseDir);
+                    LOGGER.info(String.format("Removed database directory '%s'",
+                            databaseDir.getAbsolutePath()));
+                } catch (IOException ex) {
+                    LOGGER.info(String.format("Removing database directory '%s' failed, see nested exception for details",
+                            databaseDir.getAbsolutePath()),
+                            ex);
+                }
+            }
+        }));
+        this.reflectionFormBuilder = new JPAReflectionFormBuilder(storage,
                 "fieldDescriptionDialogTitle",
                 messageHandler,
                 confirmMessageHandler,
@@ -187,14 +210,17 @@ public class CommunicationTreePanelDemo extends JFrame {
             }
         }
 
-        entityManager.getTransaction().begin();
-        entityManager.persist(sender);
-        entityManager.persist(recipient);
-        entityManager.persist(reply2reply1);
-        entityManager.persist(reply1);
-        entityManager.persist(reply2);
-        entityManager.persist(root);
-        entityManager.getTransaction().commit();
+        idApplier.applyId(sender, fieldRetriever.getIdFields(sender.getClass()));
+        idApplier.applyId(recipient, fieldRetriever.getIdFields(recipient.getClass()));
+        idApplier.applyId(reply2reply1, fieldRetriever.getIdFields(reply2reply1.getClass()));
+        idApplier.applyId(reply1, fieldRetriever.getIdFields(reply1.getClass()));
+        idApplier.applyId(reply2, fieldRetriever.getIdFields(reply2.getClass()));
+        idApplier.applyId(root, fieldRetriever.getIdFields(root.getClass()));
+        storage.store(sender);
+        storage.store(recipient);
+        storage.store(reply2reply1);
+            //reply1, reply2 and root should be stored through cascading
+            //persistence
 
         File amountMoneyUsageStatisticsStorageFile = new File( AMOUNT_MONEY_USAGE_STATISTICS_STORAGE_FILE_NAME);
         File amountMoneyCurrencyStorageFile = new File(AMOUNT_MONEY_CURRENCY_STORAGE_FILE_NAME);
@@ -206,7 +232,7 @@ public class CommunicationTreePanelDemo extends JFrame {
             throw new RuntimeException(ex);
         }
         AmountMoneyCurrencyStorage amountMoneyCurrencyStorage = new FileAmountMoneyCurrencyStorage(amountMoneyCurrencyStorageFile);
-        JPAAmountMoneyMappingTypeHandlerFactory fieldHandlerFactory = new JPAAmountMoneyMappingTypeHandlerFactory(entityManager,
+        JPAAmountMoneyMappingTypeHandlerFactory fieldHandlerFactory = new JPAAmountMoneyMappingTypeHandlerFactory(storage,
                 INITIAL_QUERY_LIMIT_DEFAULT,
                 messageHandler,
                 BIDIRECTIONAL_HELP_DIALOG_TITLE);
@@ -223,26 +249,26 @@ public class CommunicationTreePanelDemo extends JFrame {
                 typeHandlerMapping,
                 messageHandler,
                 embeddableFieldHandler);
-        JPAAmountMoneyMappingFieldHandlerFactory jPAAmountMoneyMappingFieldHandlerFactory = JPAAmountMoneyMappingFieldHandlerFactory.create(entityManager,
+        JPAAmountMoneyMappingFieldHandlerFactory jPAAmountMoneyMappingFieldHandlerFactory = JPAAmountMoneyMappingFieldHandlerFactory.create(storage,
                 INITIAL_QUERY_LIMIT_DEFAULT,
                 messageHandler,
                 amountMoneyUsageStatisticsStorage,
                 amountMoneyCurrencyStorage,
                 amountMoneyExchangeRateRetriever,
                 BIDIRECTIONAL_HELP_DIALOG_TITLE);
-        ToManyTypeHandler toManyTypeHandler = new ToManyTypeHandler(entityManager,
+        ToManyTypeHandler toManyTypeHandler = new ToManyTypeHandler(storage,
                 messageHandler,
                 typeHandlerMapping,
                 typeHandlerMapping,
                 BIDIRECTIONAL_HELP_DIALOG_TITLE);
-        ToOneTypeHandler toOneTypeHandler = new ToOneTypeHandler(entityManager,
+        ToOneTypeHandler toOneTypeHandler = new ToOneTypeHandler(storage,
                 messageHandler,
                 BIDIRECTIONAL_HELP_DIALOG_TITLE);
-        DocumentScannerConf documentScannerConf = new DocumentScannerConf(entityManager,
-                messageHandler,
-                DocumentScanner.ENTITY_CLASSES,
-                amountMoneyCurrencyStorageFile,
-                amountMoneyCurrencyStorageFile);
+        File xMLStorageFile = null;
+        DocumentScannerConf documentScannerConf = new DocumentScannerConf(DocumentScanner.ENTITY_CLASSES,
+                databaseDir,
+                schemeChecksumFile,
+                xMLStorageFile);
         FieldHandler fieldHandler = new DocumentScannerFieldHandler(jPAAmountMoneyMappingFieldHandlerFactory.generateClassMapping(),
                 embeddableFieldHandlerFactory.generateClassMapping(),
                 embeddableFieldHandlerFactory.generatePrimitiveMapping(),
@@ -256,7 +282,7 @@ public class CommunicationTreePanelDemo extends JFrame {
                 null, //scanResultPanelFetcher
                 documentScannerConf,
                 this, //oCRProgressMonitorParent
-                entityManager,
+                storage,
                 DocumentScanner.ENTITY_CLASSES, //entityClasses
                 DocumentScanner.PRIMARY_CLASS_SELECTION, //primaryClassSelection
                 null, //mainPanel @TODO: figure out whether this is a good idea
@@ -305,9 +331,7 @@ public class CommunicationTreePanelDemo extends JFrame {
             public void run() {
                 try {
                     new CommunicationTreePanelDemo().setVisible(true);
-                } catch (IllegalArgumentException | IllegalAccessException ex) {
-                    throw new RuntimeException(ex);
-                } catch (IOException | InstantiationException | InvocationTargetException | NoSuchMethodException | FieldHandlingException ex) {
+                } catch (IllegalArgumentException | IllegalAccessException | IOException | InstantiationException | InvocationTargetException | NoSuchMethodException | FieldHandlingException | StorageException | SQLException | NoSuchFieldException ex) {
                     throw new RuntimeException(ex);
                 }
             }
