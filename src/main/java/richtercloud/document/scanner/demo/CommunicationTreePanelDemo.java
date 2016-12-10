@@ -106,10 +106,11 @@ public class CommunicationTreePanelDemo extends JFrame {
         File databaseDir = new File("/tmp/communication-tree-panel-demo");
         File schemeChecksumFile = new File("/tmp/communcation-tree-panel-demo-checksum-file");
         DerbyEmbeddedPersistenceStorageConf storageConf = new DerbyEmbeddedPersistenceStorageConf(DocumentScanner.ENTITY_CLASSES,
-                databaseDir,
+                databaseDir.getAbsolutePath(),
                 schemeChecksumFile);
         DriverManager.getConnection(storageConf.getConnectionURL()+";create=true");
-        PersistenceStorage storage = new DerbyEmbeddedPersistenceStorage(storageConf);
+        PersistenceStorage storage = new DerbyEmbeddedPersistenceStorage(storageConf,
+                "richtercloud_document-scanner-demo_jar_1.0-SNAPSHOTPU");
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOGGER.info("Shutting down storage");
             storage.shutdown();
@@ -266,7 +267,7 @@ public class CommunicationTreePanelDemo extends JFrame {
                 BIDIRECTIONAL_HELP_DIALOG_TITLE);
         File xMLStorageFile = null;
         DocumentScannerConf documentScannerConf = new DocumentScannerConf(DocumentScanner.ENTITY_CLASSES,
-                databaseDir,
+                databaseDir.getAbsolutePath(),
                 schemeChecksumFile,
                 xMLStorageFile);
         FieldHandler fieldHandler = new DocumentScannerFieldHandler(jPAAmountMoneyMappingFieldHandlerFactory.generateClassMapping(),
