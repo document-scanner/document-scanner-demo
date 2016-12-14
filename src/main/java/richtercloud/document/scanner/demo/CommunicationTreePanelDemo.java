@@ -74,7 +74,9 @@ import richtercloud.reflection.form.builder.jpa.idapplier.GeneratedValueIdApplie
 import richtercloud.reflection.form.builder.jpa.idapplier.IdApplier;
 import richtercloud.reflection.form.builder.jpa.storage.DerbyEmbeddedPersistenceStorage;
 import richtercloud.reflection.form.builder.jpa.storage.DerbyEmbeddedPersistenceStorageConf;
+import richtercloud.reflection.form.builder.jpa.storage.FieldInitializer;
 import richtercloud.reflection.form.builder.jpa.storage.PersistenceStorage;
+import richtercloud.reflection.form.builder.jpa.storage.ReflectionFieldInitializer;
 import richtercloud.reflection.form.builder.jpa.typehandler.ElementCollectionTypeHandler;
 import richtercloud.reflection.form.builder.jpa.typehandler.ToManyTypeHandler;
 import richtercloud.reflection.form.builder.jpa.typehandler.ToOneTypeHandler;
@@ -129,6 +131,7 @@ public class CommunicationTreePanelDemo extends JFrame {
                 }
             }
         }));
+        FieldInitializer fieldInitializer = new ReflectionFieldInitializer(fieldRetriever);
         this.reflectionFormBuilder = new JPAReflectionFormBuilder(storage,
                 "fieldDescriptionDialogTitle",
                 messageHandler,
@@ -263,10 +266,12 @@ public class CommunicationTreePanelDemo extends JFrame {
                 messageHandler,
                 typeHandlerMapping,
                 typeHandlerMapping,
-                BIDIRECTIONAL_HELP_DIALOG_TITLE);
+                BIDIRECTIONAL_HELP_DIALOG_TITLE,
+                fieldInitializer);
         ToOneTypeHandler toOneTypeHandler = new ToOneTypeHandler(storage,
                 messageHandler,
-                BIDIRECTIONAL_HELP_DIALOG_TITLE);
+                BIDIRECTIONAL_HELP_DIALOG_TITLE,
+                fieldInitializer);
         File xMLStorageFile = null;
         DocumentScannerConf documentScannerConf = new DocumentScannerConf(DocumentScanner.ENTITY_CLASSES,
                 databaseDir.getAbsolutePath(),
@@ -291,7 +296,8 @@ public class CommunicationTreePanelDemo extends JFrame {
                 null, //mainPanel @TODO: figure out whether this is a good idea
                 tagStorage,
                 idApplier,
-                warningHandlers
+                warningHandlers,
+                fieldInitializer
         );
         this.reflectionFormPanel = this.reflectionFormBuilder.transformEntityClass(TelephoneCall.class,
                 root,
