@@ -74,9 +74,8 @@ import richtercloud.reflection.form.builder.jpa.idapplier.GeneratedValueIdApplie
 import richtercloud.reflection.form.builder.jpa.idapplier.IdApplier;
 import richtercloud.reflection.form.builder.jpa.storage.DerbyEmbeddedPersistenceStorage;
 import richtercloud.reflection.form.builder.jpa.storage.DerbyEmbeddedPersistenceStorageConf;
-import richtercloud.reflection.form.builder.jpa.storage.FieldInitializer;
-import richtercloud.reflection.form.builder.jpa.storage.PersistenceStorage;
 import richtercloud.reflection.form.builder.jpa.storage.ReflectionFieldInitializer;
+import richtercloud.reflection.form.builder.jpa.storage.PersistenceStorage;
 import richtercloud.reflection.form.builder.jpa.typehandler.ElementCollectionTypeHandler;
 import richtercloud.reflection.form.builder.jpa.typehandler.ToManyTypeHandler;
 import richtercloud.reflection.form.builder.jpa.typehandler.ToOneTypeHandler;
@@ -85,6 +84,7 @@ import richtercloud.reflection.form.builder.storage.StorageConfInitializationExc
 import richtercloud.reflection.form.builder.storage.StorageCreationException;
 import richtercloud.reflection.form.builder.storage.StorageException;
 import richtercloud.reflection.form.builder.typehandler.TypeHandler;
+import richtercloud.reflection.form.builder.jpa.storage.FieldInitializer;
 
 /**
  *
@@ -114,7 +114,9 @@ public class CommunicationTreePanelDemo extends JFrame {
                 schemeChecksumFile);
         DriverManager.getConnection(storageConf.getConnectionURL()+";create=true");
         PersistenceStorage storage = new DerbyEmbeddedPersistenceStorage(storageConf,
-                "richtercloud_document-scanner-demo_jar_1.0-SNAPSHOTPU");
+                "richtercloud_document-scanner-demo_jar_1.0-SNAPSHOTPU",
+                1 //parallelQueryCount
+        );
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOGGER.info("Shutting down storage");
             storage.shutdown();
