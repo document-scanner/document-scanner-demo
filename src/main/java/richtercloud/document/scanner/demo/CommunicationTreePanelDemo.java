@@ -80,7 +80,7 @@ import richtercloud.reflection.form.builder.jpa.typehandler.ElementCollectionTyp
 import richtercloud.reflection.form.builder.jpa.typehandler.ToManyTypeHandler;
 import richtercloud.reflection.form.builder.jpa.typehandler.ToOneTypeHandler;
 import richtercloud.reflection.form.builder.jpa.typehandler.factory.JPAAmountMoneyMappingTypeHandlerFactory;
-import richtercloud.reflection.form.builder.storage.StorageConfInitializationException;
+import richtercloud.reflection.form.builder.storage.StorageConfValidationException;
 import richtercloud.reflection.form.builder.storage.StorageCreationException;
 import richtercloud.reflection.form.builder.storage.StorageException;
 import richtercloud.reflection.form.builder.typehandler.TypeHandler;
@@ -106,7 +106,7 @@ public class CommunicationTreePanelDemo extends JFrame {
     private final TagStorage tagStorage = new MemoryTagStorage();
     private final boolean deleteDatabase = true;
 
-    public CommunicationTreePanelDemo() throws IllegalArgumentException, IllegalAccessException, IOException, InstantiationException, InvocationTargetException, NoSuchMethodException, FieldHandlingException, StorageException, SQLException, NoSuchFieldException, StorageConfInitializationException, StorageCreationException {
+    public CommunicationTreePanelDemo() throws IllegalArgumentException, IllegalAccessException, IOException, InstantiationException, InvocationTargetException, NoSuchMethodException, FieldHandlingException, StorageException, SQLException, NoSuchFieldException, StorageConfValidationException, StorageCreationException {
         File databaseDir = new File("/tmp/communication-tree-panel-demo");
         File schemeChecksumFile = new File("/tmp/communcation-tree-panel-demo-checksum-file");
         DerbyEmbeddedPersistenceStorageConf storageConf = new DerbyEmbeddedPersistenceStorageConf(DocumentScanner.ENTITY_CLASSES,
@@ -342,7 +342,7 @@ public class CommunicationTreePanelDemo extends JFrame {
             public void run() {
                 try {
                     new CommunicationTreePanelDemo().setVisible(true);
-                } catch (IllegalArgumentException | IllegalAccessException | IOException | InstantiationException | InvocationTargetException | NoSuchMethodException | FieldHandlingException | StorageException | SQLException | NoSuchFieldException | StorageCreationException | StorageConfInitializationException ex) {
+                } catch (IllegalArgumentException | IllegalAccessException | IOException | InstantiationException | InvocationTargetException | NoSuchMethodException | FieldHandlingException | StorageException | SQLException | NoSuchFieldException | StorageCreationException | StorageConfValidationException ex) {
                     throw new RuntimeException(ex);
                 }
             }
