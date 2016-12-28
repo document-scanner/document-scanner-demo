@@ -274,11 +274,7 @@ public class CommunicationTreePanelDemo extends JFrame {
                 messageHandler,
                 BIDIRECTIONAL_HELP_DIALOG_TITLE,
                 fieldInitializer);
-        File xMLStorageFile = null;
-        DocumentScannerConf documentScannerConf = new DocumentScannerConf(DocumentScanner.ENTITY_CLASSES,
-                databaseDir.getAbsolutePath(),
-                schemeChecksumFile,
-                xMLStorageFile);
+        DocumentScannerConf documentScannerConf = new DocumentScannerConf();
         FieldHandler fieldHandler = new DocumentScannerFieldHandler(jPAAmountMoneyMappingFieldHandlerFactory.generateClassMapping(),
                 embeddableFieldHandlerFactory.generateClassMapping(),
                 embeddableFieldHandlerFactory.generatePrimitiveMapping(),
