@@ -43,6 +43,7 @@ import richtercloud.document.scanner.gui.DocumentScanner;
 import static richtercloud.document.scanner.gui.DocumentScanner.BIDIRECTIONAL_HELP_DIALOG_TITLE;
 import static richtercloud.document.scanner.gui.DocumentScanner.INITIAL_QUERY_LIMIT_DEFAULT;
 import richtercloud.document.scanner.gui.DocumentScannerFieldHandler;
+import richtercloud.document.scanner.gui.DocumentScannerInitialQueryTextGenerator;
 import richtercloud.document.scanner.gui.conf.DocumentScannerConf;
 import richtercloud.document.scanner.model.Address;
 import richtercloud.document.scanner.model.EmailAddress;
@@ -72,6 +73,7 @@ import richtercloud.reflection.form.builder.jpa.WarningHandler;
 import richtercloud.reflection.form.builder.jpa.fieldhandler.factory.JPAAmountMoneyMappingFieldHandlerFactory;
 import richtercloud.reflection.form.builder.jpa.idapplier.GeneratedValueIdApplier;
 import richtercloud.reflection.form.builder.jpa.idapplier.IdApplier;
+import richtercloud.reflection.form.builder.jpa.panels.InitialQueryTextGenerator;
 import richtercloud.reflection.form.builder.jpa.storage.DerbyEmbeddedPersistenceStorage;
 import richtercloud.reflection.form.builder.jpa.storage.DerbyEmbeddedPersistenceStorageConf;
 import richtercloud.reflection.form.builder.jpa.storage.ReflectionFieldInitializer;
@@ -105,6 +107,7 @@ public class CommunicationTreePanelDemo extends JFrame {
     private final Map<Class<?>, WarningHandler<?>> warningHandlers = new HashMap<>();
     private final TagStorage tagStorage = new MemoryTagStorage();
     private final boolean deleteDatabase = true;
+    private final InitialQueryTextGenerator initialQueryTextGenerator = new DocumentScannerInitialQueryTextGenerator();
 
     public CommunicationTreePanelDemo() throws IllegalArgumentException, IllegalAccessException, IOException, InstantiationException, InvocationTargetException, NoSuchMethodException, FieldHandlingException, StorageException, SQLException, NoSuchFieldException, StorageConfValidationException, StorageCreationException {
         File databaseDir = new File("/tmp/communication-tree-panel-demo");
@@ -269,11 +272,13 @@ public class CommunicationTreePanelDemo extends JFrame {
                 typeHandlerMapping,
                 typeHandlerMapping,
                 BIDIRECTIONAL_HELP_DIALOG_TITLE,
-                fieldInitializer);
+                fieldInitializer,
+                initialQueryTextGenerator);
         ToOneTypeHandler toOneTypeHandler = new ToOneTypeHandler(storage,
                 messageHandler,
                 BIDIRECTIONAL_HELP_DIALOG_TITLE,
-                fieldInitializer);
+                fieldInitializer,
+                initialQueryTextGenerator);
         DocumentScannerConf documentScannerConf = new DocumentScannerConf();
         FieldHandler fieldHandler = new DocumentScannerFieldHandler(jPAAmountMoneyMappingFieldHandlerFactory.generateClassMapping(),
                 embeddableFieldHandlerFactory.generateClassMapping(),
@@ -295,7 +300,8 @@ public class CommunicationTreePanelDemo extends JFrame {
                 tagStorage,
                 idApplier,
                 warningHandlers,
-                fieldInitializer
+                fieldInitializer,
+                initialQueryTextGenerator
         );
         this.reflectionFormPanel = this.reflectionFormBuilder.transformEntityClass(TelephoneCall.class,
                 root,
