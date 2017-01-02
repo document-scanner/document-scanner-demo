@@ -246,7 +246,8 @@ public class CommunicationTreePanelDemo extends JFrame {
         JPAAmountMoneyMappingTypeHandlerFactory fieldHandlerFactory = new JPAAmountMoneyMappingTypeHandlerFactory(storage,
                 INITIAL_QUERY_LIMIT_DEFAULT,
                 messageHandler,
-                BIDIRECTIONAL_HELP_DIALOG_TITLE);
+                BIDIRECTIONAL_HELP_DIALOG_TITLE,
+                fieldRetriever);
         Map<java.lang.reflect.Type, TypeHandler<?,?,?,?>> typeHandlerMapping = fieldHandlerFactory.generateTypeHandlerMapping();
         AmountMoneyExchangeRateRetriever amountMoneyExchangeRateRetriever = new FailsafeAmountMoneyExchangeRateRetriever();
 
@@ -259,26 +260,30 @@ public class CommunicationTreePanelDemo extends JFrame {
         ElementCollectionTypeHandler elementCollectionTypeHandler = new ElementCollectionTypeHandler(typeHandlerMapping,
                 typeHandlerMapping,
                 messageHandler,
-                embeddableFieldHandler);
+                embeddableFieldHandler,
+                fieldRetriever);
         JPAAmountMoneyMappingFieldHandlerFactory jPAAmountMoneyMappingFieldHandlerFactory = JPAAmountMoneyMappingFieldHandlerFactory.create(storage,
                 INITIAL_QUERY_LIMIT_DEFAULT,
                 messageHandler,
                 amountMoneyUsageStatisticsStorage,
                 amountMoneyCurrencyStorage,
                 amountMoneyExchangeRateRetriever,
-                BIDIRECTIONAL_HELP_DIALOG_TITLE);
+                BIDIRECTIONAL_HELP_DIALOG_TITLE,
+                fieldRetriever);
         ToManyTypeHandler toManyTypeHandler = new ToManyTypeHandler(storage,
                 messageHandler,
                 typeHandlerMapping,
                 typeHandlerMapping,
                 BIDIRECTIONAL_HELP_DIALOG_TITLE,
                 fieldInitializer,
-                initialQueryTextGenerator);
+                initialQueryTextGenerator,
+                fieldRetriever);
         ToOneTypeHandler toOneTypeHandler = new ToOneTypeHandler(storage,
                 messageHandler,
                 BIDIRECTIONAL_HELP_DIALOG_TITLE,
                 fieldInitializer,
-                initialQueryTextGenerator);
+                initialQueryTextGenerator,
+                fieldRetriever);
         DocumentScannerConf documentScannerConf = new DocumentScannerConf();
         FieldHandler fieldHandler = new DocumentScannerFieldHandler(jPAAmountMoneyMappingFieldHandlerFactory.generateClassMapping(),
                 embeddableFieldHandlerFactory.generateClassMapping(),
@@ -301,7 +306,8 @@ public class CommunicationTreePanelDemo extends JFrame {
                 idApplier,
                 warningHandlers,
                 fieldInitializer,
-                initialQueryTextGenerator
+                initialQueryTextGenerator,
+                fieldRetriever
         );
         this.reflectionFormPanel = this.reflectionFormBuilder.transformEntityClass(TelephoneCall.class,
                 root,
