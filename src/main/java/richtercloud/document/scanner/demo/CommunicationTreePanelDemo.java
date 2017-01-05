@@ -118,7 +118,8 @@ public class CommunicationTreePanelDemo extends JFrame {
         DriverManager.getConnection(storageConf.getConnectionURL()+";create=true");
         PersistenceStorage storage = new DerbyEmbeddedPersistenceStorage(storageConf,
                 "richtercloud_document-scanner-demo_jar_1.0-SNAPSHOTPU",
-                1 //parallelQueryCount
+                1, //parallelQueryCount
+                this.fieldRetriever
         );
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOGGER.info("Shutting down storage");
