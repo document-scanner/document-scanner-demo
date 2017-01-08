@@ -43,7 +43,6 @@ import richtercloud.document.scanner.gui.DocumentScanner;
 import static richtercloud.document.scanner.gui.DocumentScanner.BIDIRECTIONAL_HELP_DIALOG_TITLE;
 import static richtercloud.document.scanner.gui.DocumentScanner.INITIAL_QUERY_LIMIT_DEFAULT;
 import richtercloud.document.scanner.gui.DocumentScannerFieldHandler;
-import richtercloud.document.scanner.gui.DocumentScannerInitialQueryTextGenerator;
 import richtercloud.document.scanner.gui.conf.DocumentScannerConf;
 import richtercloud.document.scanner.model.Address;
 import richtercloud.document.scanner.model.EmailAddress;
@@ -73,11 +72,15 @@ import richtercloud.reflection.form.builder.jpa.WarningHandler;
 import richtercloud.reflection.form.builder.jpa.fieldhandler.factory.JPAAmountMoneyMappingFieldHandlerFactory;
 import richtercloud.reflection.form.builder.jpa.idapplier.GeneratedValueIdApplier;
 import richtercloud.reflection.form.builder.jpa.idapplier.IdApplier;
-import richtercloud.reflection.form.builder.jpa.panels.InitialQueryTextGenerator;
+import richtercloud.reflection.form.builder.jpa.panels.XMLFileQueryHistoryEntryStorageFactory;
+import richtercloud.reflection.form.builder.jpa.panels.QueryHistoryEntryStorage;
+import richtercloud.reflection.form.builder.jpa.panels.QueryHistoryEntryStorageCreationException;
+import richtercloud.reflection.form.builder.jpa.panels.QueryHistoryEntryStorageFactory;
 import richtercloud.reflection.form.builder.jpa.storage.DerbyEmbeddedPersistenceStorage;
 import richtercloud.reflection.form.builder.jpa.storage.DerbyEmbeddedPersistenceStorageConf;
-import richtercloud.reflection.form.builder.jpa.storage.ReflectionFieldInitializer;
+import richtercloud.reflection.form.builder.jpa.storage.FieldInitializer;
 import richtercloud.reflection.form.builder.jpa.storage.PersistenceStorage;
+import richtercloud.reflection.form.builder.jpa.storage.ReflectionFieldInitializer;
 import richtercloud.reflection.form.builder.jpa.typehandler.ElementCollectionTypeHandler;
 import richtercloud.reflection.form.builder.jpa.typehandler.ToManyTypeHandler;
 import richtercloud.reflection.form.builder.jpa.typehandler.ToOneTypeHandler;
@@ -86,7 +89,6 @@ import richtercloud.reflection.form.builder.storage.StorageConfValidationExcepti
 import richtercloud.reflection.form.builder.storage.StorageCreationException;
 import richtercloud.reflection.form.builder.storage.StorageException;
 import richtercloud.reflection.form.builder.typehandler.TypeHandler;
-import richtercloud.reflection.form.builder.jpa.storage.FieldInitializer;
 
 /**
  *
@@ -107,9 +109,15 @@ public class CommunicationTreePanelDemo extends JFrame {
     private final Map<Class<?>, WarningHandler<?>> warningHandlers = new HashMap<>();
     private final TagStorage tagStorage = new MemoryTagStorage();
     private final boolean deleteDatabase = true;
-    private final InitialQueryTextGenerator initialQueryTextGenerator = new DocumentScannerInitialQueryTextGenerator();
+    private final QueryHistoryEntryStorage entryStorage;
 
-    public CommunicationTreePanelDemo() throws IllegalArgumentException, IllegalAccessException, IOException, InstantiationException, InvocationTargetException, NoSuchMethodException, FieldHandlingException, StorageException, SQLException, NoSuchFieldException, StorageConfValidationException, StorageCreationException {
+    public CommunicationTreePanelDemo() throws IllegalArgumentException, IllegalAccessException, IOException, InstantiationException, InvocationTargetException, NoSuchMethodException, FieldHandlingException, StorageException, SQLException, NoSuchFieldException, StorageConfValidationException, StorageCreationException, QueryHistoryEntryStorageCreationException {
+        File entryStorageFile = File.createTempFile(CommunicationTreePanelDemo.class.getSimpleName(), null);
+        QueryHistoryEntryStorageFactory entryStorageFactory = new XMLFileQueryHistoryEntryStorageFactory(entryStorageFile,
+                DocumentScanner.ENTITY_CLASSES,
+                false,
+                messageHandler);
+        this.entryStorage = entryStorageFactory.create();
         File databaseDir = new File("/tmp/communication-tree-panel-demo");
         File schemeChecksumFile = new File("/tmp/communcation-tree-panel-demo-checksum-file");
         DerbyEmbeddedPersistenceStorageConf storageConf = new DerbyEmbeddedPersistenceStorageConf(DocumentScanner.ENTITY_CLASSES,
@@ -277,13 +285,13 @@ public class CommunicationTreePanelDemo extends JFrame {
                 typeHandlerMapping,
                 BIDIRECTIONAL_HELP_DIALOG_TITLE,
                 fieldInitializer,
-                initialQueryTextGenerator,
+                entryStorage,
                 fieldRetriever);
         ToOneTypeHandler toOneTypeHandler = new ToOneTypeHandler(storage,
                 messageHandler,
                 BIDIRECTIONAL_HELP_DIALOG_TITLE,
                 fieldInitializer,
-                initialQueryTextGenerator,
+                entryStorage,
                 fieldRetriever);
         DocumentScannerConf documentScannerConf = new DocumentScannerConf();
         FieldHandler fieldHandler = new DocumentScannerFieldHandler(jPAAmountMoneyMappingFieldHandlerFactory.generateClassMapping(),
@@ -307,7 +315,7 @@ public class CommunicationTreePanelDemo extends JFrame {
                 idApplier,
                 warningHandlers,
                 fieldInitializer,
-                initialQueryTextGenerator,
+                entryStorage,
                 fieldRetriever
         );
         this.reflectionFormPanel = this.reflectionFormBuilder.transformEntityClass(TelephoneCall.class,
@@ -351,7 +359,7 @@ public class CommunicationTreePanelDemo extends JFrame {
             public void run() {
                 try {
                     new CommunicationTreePanelDemo().setVisible(true);
-                } catch (IllegalArgumentException | IllegalAccessException | IOException | InstantiationException | InvocationTargetException | NoSuchMethodException | FieldHandlingException | StorageException | SQLException | NoSuchFieldException | StorageCreationException | StorageConfValidationException ex) {
+                } catch (IllegalArgumentException | IllegalAccessException | IOException | InstantiationException | InvocationTargetException | NoSuchMethodException | FieldHandlingException | StorageException | SQLException | NoSuchFieldException | StorageCreationException | StorageConfValidationException | QueryHistoryEntryStorageCreationException ex) {
                     throw new RuntimeException(ex);
                 }
             }
