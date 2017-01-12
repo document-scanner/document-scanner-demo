@@ -16,7 +16,6 @@ package richtercloud.document.scanner.demo;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -56,6 +55,7 @@ import richtercloud.message.handler.LoggerMessageHandler;
 import richtercloud.message.handler.MessageHandler;
 import richtercloud.reflection.form.builder.ReflectionFormBuilder;
 import richtercloud.reflection.form.builder.ReflectionFormPanel;
+import richtercloud.reflection.form.builder.TransformationException;
 import richtercloud.reflection.form.builder.components.money.AmountMoneyCurrencyStorage;
 import richtercloud.reflection.form.builder.components.money.AmountMoneyExchangeRateRetriever;
 import richtercloud.reflection.form.builder.components.money.AmountMoneyUsageStatisticsStorage;
@@ -63,19 +63,21 @@ import richtercloud.reflection.form.builder.components.money.FailsafeAmountMoney
 import richtercloud.reflection.form.builder.components.money.FileAmountMoneyCurrencyStorage;
 import richtercloud.reflection.form.builder.components.money.FileAmountMoneyUsageStatisticsStorage;
 import richtercloud.reflection.form.builder.fieldhandler.FieldHandler;
-import richtercloud.reflection.form.builder.fieldhandler.FieldHandlingException;
 import richtercloud.reflection.form.builder.fieldhandler.MappingFieldHandler;
 import richtercloud.reflection.form.builder.fieldhandler.factory.AmountMoneyMappingFieldHandlerFactory;
+import richtercloud.reflection.form.builder.jpa.IdGenerator;
 import richtercloud.reflection.form.builder.jpa.JPACachedFieldRetriever;
 import richtercloud.reflection.form.builder.jpa.JPAReflectionFormBuilder;
+import richtercloud.reflection.form.builder.jpa.MemorySequentialIdGenerator;
 import richtercloud.reflection.form.builder.jpa.WarningHandler;
 import richtercloud.reflection.form.builder.jpa.fieldhandler.factory.JPAAmountMoneyMappingFieldHandlerFactory;
 import richtercloud.reflection.form.builder.jpa.idapplier.GeneratedValueIdApplier;
+import richtercloud.reflection.form.builder.jpa.idapplier.IdApplicationException;
 import richtercloud.reflection.form.builder.jpa.idapplier.IdApplier;
-import richtercloud.reflection.form.builder.jpa.panels.XMLFileQueryHistoryEntryStorageFactory;
 import richtercloud.reflection.form.builder.jpa.panels.QueryHistoryEntryStorage;
 import richtercloud.reflection.form.builder.jpa.panels.QueryHistoryEntryStorageCreationException;
 import richtercloud.reflection.form.builder.jpa.panels.QueryHistoryEntryStorageFactory;
+import richtercloud.reflection.form.builder.jpa.panels.XMLFileQueryHistoryEntryStorageFactory;
 import richtercloud.reflection.form.builder.jpa.storage.DerbyEmbeddedPersistenceStorage;
 import richtercloud.reflection.form.builder.jpa.storage.DerbyEmbeddedPersistenceStorageConf;
 import richtercloud.reflection.form.builder.jpa.storage.FieldInitializer;
@@ -111,7 +113,7 @@ public class CommunicationTreePanelDemo extends JFrame {
     private final boolean deleteDatabase = true;
     private final QueryHistoryEntryStorage entryStorage;
 
-    public CommunicationTreePanelDemo() throws IllegalArgumentException, IllegalAccessException, IOException, InstantiationException, InvocationTargetException, NoSuchMethodException, FieldHandlingException, StorageException, SQLException, NoSuchFieldException, StorageConfValidationException, StorageCreationException, QueryHistoryEntryStorageCreationException {
+    public CommunicationTreePanelDemo() throws IOException, StorageException, SQLException, NoSuchFieldException, StorageConfValidationException, StorageCreationException, QueryHistoryEntryStorageCreationException, IdApplicationException, TransformationException {
         File entryStorageFile = File.createTempFile(CommunicationTreePanelDemo.class.getSimpleName(), null);
         QueryHistoryEntryStorageFactory entryStorageFactory = new XMLFileQueryHistoryEntryStorageFactory(entryStorageFile,
                 DocumentScanner.ENTITY_CLASSES,
@@ -146,12 +148,14 @@ public class CommunicationTreePanelDemo extends JFrame {
             }
         }));
         FieldInitializer fieldInitializer = new ReflectionFieldInitializer(fieldRetriever);
+        IdGenerator idGenerator = MemorySequentialIdGenerator.getInstance();
         this.reflectionFormBuilder = new JPAReflectionFormBuilder(storage,
                 "fieldDescriptionDialogTitle",
                 messageHandler,
                 confirmMessageHandler,
                 fieldRetriever,
                 idApplier,
+                idGenerator,
                 warningHandlers);
         Person sender = new Person(new LinkedList<>(Arrays.asList("Alice")),
                 new LinkedList<>(Arrays.asList("A")),
@@ -359,7 +363,7 @@ public class CommunicationTreePanelDemo extends JFrame {
             public void run() {
                 try {
                     new CommunicationTreePanelDemo().setVisible(true);
-                } catch (IllegalArgumentException | IllegalAccessException | IOException | InstantiationException | InvocationTargetException | NoSuchMethodException | FieldHandlingException | StorageException | SQLException | NoSuchFieldException | StorageCreationException | StorageConfValidationException | QueryHistoryEntryStorageCreationException ex) {
+                } catch (IOException | StorageException | SQLException | NoSuchFieldException | StorageCreationException | StorageConfValidationException | QueryHistoryEntryStorageCreationException | TransformationException | IdApplicationException ex) {
                     throw new RuntimeException(ex);
                 }
             }
