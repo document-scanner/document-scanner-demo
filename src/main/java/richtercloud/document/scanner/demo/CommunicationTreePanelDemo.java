@@ -97,7 +97,6 @@ import richtercloud.reflection.form.builder.typehandler.TypeHandler;
  * @author richter
  */
 public class CommunicationTreePanelDemo extends JFrame {
-
     private static final long serialVersionUID = 1L;
     private final static Logger LOGGER = LoggerFactory.getLogger(CommunicationTreePanelDemo.class);
     private final static String AMOUNT_MONEY_USAGE_STATISTICS_STORAGE_FILE_NAME = "money-usage-statistics-storage.xml";
@@ -112,6 +111,7 @@ public class CommunicationTreePanelDemo extends JFrame {
     private final TagStorage tagStorage = new MemoryTagStorage();
     private final boolean deleteDatabase = true;
     private final QueryHistoryEntryStorage entryStorage;
+    private final File fileCacheFile;
 
     public CommunicationTreePanelDemo() throws IOException, StorageException, SQLException, NoSuchFieldException, StorageConfValidationException, StorageCreationException, QueryHistoryEntryStorageCreationException, IdApplicationException, TransformationException {
         File entryStorageFile = File.createTempFile(CommunicationTreePanelDemo.class.getSimpleName(), null);
@@ -262,7 +262,8 @@ public class CommunicationTreePanelDemo extends JFrame {
                 BIDIRECTIONAL_HELP_DIALOG_TITLE,
                 fieldRetriever);
         Map<java.lang.reflect.Type, TypeHandler<?,?,?,?>> typeHandlerMapping = fieldHandlerFactory.generateTypeHandlerMapping();
-        AmountMoneyExchangeRateRetriever amountMoneyExchangeRateRetriever = new FailsafeAmountMoneyExchangeRateRetriever();
+        fileCacheFile = File.createTempFile(CommunicationTreePanelDemo.class.getSimpleName(), null);
+        AmountMoneyExchangeRateRetriever amountMoneyExchangeRateRetriever = new FailsafeAmountMoneyExchangeRateRetriever(fileCacheFile);
 
         AmountMoneyMappingFieldHandlerFactory embeddableFieldHandlerFactory = new AmountMoneyMappingFieldHandlerFactory(amountMoneyUsageStatisticsStorage,
                 amountMoneyCurrencyStorage,
