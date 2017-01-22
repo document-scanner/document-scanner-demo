@@ -38,9 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import richtercloud.document.scanner.components.tag.MemoryTagStorage;
 import richtercloud.document.scanner.components.tag.TagStorage;
-import richtercloud.document.scanner.gui.DocumentScanner;
-import static richtercloud.document.scanner.gui.DocumentScanner.BIDIRECTIONAL_HELP_DIALOG_TITLE;
-import static richtercloud.document.scanner.gui.DocumentScanner.INITIAL_QUERY_LIMIT_DEFAULT;
+import richtercloud.document.scanner.gui.Constants;
 import richtercloud.document.scanner.gui.DocumentScannerFieldHandler;
 import richtercloud.document.scanner.gui.conf.DocumentScannerConf;
 import richtercloud.document.scanner.model.Address;
@@ -116,13 +114,13 @@ public class CommunicationTreePanelDemo extends JFrame {
     public CommunicationTreePanelDemo() throws IOException, StorageException, SQLException, NoSuchFieldException, StorageConfValidationException, StorageCreationException, QueryHistoryEntryStorageCreationException, IdApplicationException, TransformationException {
         File entryStorageFile = File.createTempFile(CommunicationTreePanelDemo.class.getSimpleName(), null);
         QueryHistoryEntryStorageFactory entryStorageFactory = new XMLFileQueryHistoryEntryStorageFactory(entryStorageFile,
-                DocumentScanner.ENTITY_CLASSES,
+                Constants.ENTITY_CLASSES,
                 false,
                 messageHandler);
         this.entryStorage = entryStorageFactory.create();
         File databaseDir = new File("/tmp/communication-tree-panel-demo");
         File schemeChecksumFile = new File("/tmp/communcation-tree-panel-demo-checksum-file");
-        DerbyEmbeddedPersistenceStorageConf storageConf = new DerbyEmbeddedPersistenceStorageConf(DocumentScanner.ENTITY_CLASSES,
+        DerbyEmbeddedPersistenceStorageConf storageConf = new DerbyEmbeddedPersistenceStorageConf(Constants.ENTITY_CLASSES,
                 databaseDir.getAbsolutePath(),
                 schemeChecksumFile);
         DriverManager.getConnection(storageConf.getConnectionURL()+";create=true");
@@ -257,9 +255,9 @@ public class CommunicationTreePanelDemo extends JFrame {
         }
         AmountMoneyCurrencyStorage amountMoneyCurrencyStorage = new FileAmountMoneyCurrencyStorage(amountMoneyCurrencyStorageFile);
         JPAAmountMoneyMappingTypeHandlerFactory fieldHandlerFactory = new JPAAmountMoneyMappingTypeHandlerFactory(storage,
-                INITIAL_QUERY_LIMIT_DEFAULT,
+                Constants.INITIAL_QUERY_LIMIT_DEFAULT,
                 messageHandler,
-                BIDIRECTIONAL_HELP_DIALOG_TITLE,
+                Constants.BIDIRECTIONAL_HELP_DIALOG_TITLE,
                 fieldRetriever);
         Map<java.lang.reflect.Type, TypeHandler<?,?,?,?>> typeHandlerMapping = fieldHandlerFactory.generateTypeHandlerMapping();
         fileCacheFile = File.createTempFile(CommunicationTreePanelDemo.class.getSimpleName(), null);
@@ -277,24 +275,24 @@ public class CommunicationTreePanelDemo extends JFrame {
                 embeddableFieldHandler,
                 fieldRetriever);
         JPAAmountMoneyMappingFieldHandlerFactory jPAAmountMoneyMappingFieldHandlerFactory = JPAAmountMoneyMappingFieldHandlerFactory.create(storage,
-                INITIAL_QUERY_LIMIT_DEFAULT,
+                Constants.INITIAL_QUERY_LIMIT_DEFAULT,
                 messageHandler,
                 amountMoneyUsageStatisticsStorage,
                 amountMoneyCurrencyStorage,
                 amountMoneyExchangeRateRetriever,
-                BIDIRECTIONAL_HELP_DIALOG_TITLE,
+                Constants.BIDIRECTIONAL_HELP_DIALOG_TITLE,
                 fieldRetriever);
         ToManyTypeHandler toManyTypeHandler = new ToManyTypeHandler(storage,
                 messageHandler,
                 typeHandlerMapping,
                 typeHandlerMapping,
-                BIDIRECTIONAL_HELP_DIALOG_TITLE,
+                Constants.BIDIRECTIONAL_HELP_DIALOG_TITLE,
                 fieldInitializer,
                 entryStorage,
                 fieldRetriever);
         ToOneTypeHandler toOneTypeHandler = new ToOneTypeHandler(storage,
                 messageHandler,
-                BIDIRECTIONAL_HELP_DIALOG_TITLE,
+                Constants.BIDIRECTIONAL_HELP_DIALOG_TITLE,
                 fieldInitializer,
                 entryStorage,
                 fieldRetriever);
@@ -313,8 +311,8 @@ public class CommunicationTreePanelDemo extends JFrame {
                 documentScannerConf,
                 this, //oCRProgressMonitorParent
                 storage,
-                DocumentScanner.ENTITY_CLASSES, //entityClasses
-                DocumentScanner.PRIMARY_CLASS_SELECTION, //primaryClassSelection
+                Constants.ENTITY_CLASSES, //entityClasses
+                Constants.PRIMARY_CLASS_SELECTION, //primaryClassSelection
                 null, //mainPanel @TODO: figure out whether this is a good idea
                 tagStorage,
                 idApplier,
