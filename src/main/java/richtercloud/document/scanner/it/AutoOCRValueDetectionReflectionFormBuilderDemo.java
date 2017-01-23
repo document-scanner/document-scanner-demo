@@ -55,9 +55,13 @@ import richtercloud.document.scanner.it.entities.ListTestClass;
 import richtercloud.document.scanner.it.entities.PrimitivesTestClass;
 import richtercloud.document.scanner.it.entities.QueryPanelTestClass;
 import richtercloud.document.scanner.setter.ValueSetter;
+import richtercloud.message.handler.BugHandler;
 import richtercloud.message.handler.ConfirmMessageHandler;
+import richtercloud.message.handler.DefaultIssueHandler;
+import richtercloud.message.handler.DialogBugHandler;
 import richtercloud.message.handler.DialogConfirmMessageHandler;
 import richtercloud.message.handler.DialogMessageHandler;
+import richtercloud.message.handler.IssueHandler;
 import richtercloud.message.handler.MessageHandler;
 import richtercloud.reflection.form.builder.ReflectionFormPanel;
 import richtercloud.reflection.form.builder.TransformationException;
@@ -126,6 +130,8 @@ public class AutoOCRValueDetectionReflectionFormBuilderDemo extends JFrame {
         storage.start();
         for(Class<?> testClass : entityClasses) {
             MessageHandler messageHandler = new DialogMessageHandler(this);
+            BugHandler bugHandler = new DialogBugHandler(this, "http://example.com", "", "");
+            IssueHandler issueHandler = new DefaultIssueHandler(messageHandler, bugHandler);
             ConfirmMessageHandler confirmMessageHandler = new DialogConfirmMessageHandler(this);
             IdApplier idApplier = new GeneratedValueIdApplier();
             IdGenerator idGenerator = MemorySequentialIdGenerator.getInstance();
@@ -225,7 +231,7 @@ public class AutoOCRValueDetectionReflectionFormBuilderDemo extends JFrame {
                     amountMoneyUsageStatisticsStorage,
                     amountMoneyCurrencyStorage,
                     amountMoneyExchangeRateRetriever,
-                    messageHandler,
+                    issueHandler,
                     confirmMessageHandler,
                     this, //dockingControlFrame,
                     oCREngine,
