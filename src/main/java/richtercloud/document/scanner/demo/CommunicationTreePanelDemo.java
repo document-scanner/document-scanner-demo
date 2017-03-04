@@ -144,7 +144,9 @@ public class CommunicationTreePanelDemo extends JFrame {
                             ex);
                 }
             }
-        }));
+        },
+                String.format("%s shutdown hook", CommunicationTreePanelDemo.class.getSimpleName())
+        ));
         FieldInitializer fieldInitializer = new ReflectionFieldInitializer(fieldRetriever);
         IdGenerator idGenerator = MemorySequentialIdGenerator.getInstance();
         this.reflectionFormBuilder = new JPAReflectionFormBuilder(storage,
