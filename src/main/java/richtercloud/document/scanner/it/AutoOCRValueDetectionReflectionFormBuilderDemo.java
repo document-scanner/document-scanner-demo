@@ -135,6 +135,7 @@ public class AutoOCRValueDetectionReflectionFormBuilderDemo extends JFrame {
             ConfirmMessageHandler confirmMessageHandler = new DialogConfirmMessageHandler(this);
             IdApplier idApplier = new GeneratedValueIdApplier();
             IdGenerator idGenerator = MemorySequentialIdGenerator.getInstance();
+            DocumentScannerConf documentScannerConf = new DocumentScannerConf();
 
             AutoOCRValueDetectionReflectionFormBuilder instance = new AutoOCRValueDetectionReflectionFormBuilder(storage,
                     "fieldDescriptionDialogTitle",
@@ -144,7 +145,8 @@ public class AutoOCRValueDetectionReflectionFormBuilderDemo extends JFrame {
                     idApplier,
                     idGenerator,
                     new HashMap<Class<?>, WarningHandler<?>>(), //warningHandlers
-                    new HashMap<Class<? extends JComponent>, ValueSetter<?,?>>() //valueSetterMapping
+                    new HashMap<Class<? extends JComponent>, ValueSetter<?,?>>(), //valueSetterMapping
+                    documentScannerConf
             );
             AmountMoneyUsageStatisticsStorage amountMoneyUsageStatisticsStorage = new MemoryAmountMoneyUsageStatisticsStorage();
             AmountMoneyCurrencyStorage amountMoneyCurrencyStorage = new MemoryAmountMoneyCurrencyStorage();
@@ -182,7 +184,6 @@ public class AutoOCRValueDetectionReflectionFormBuilderDemo extends JFrame {
                     //do nothing
                 }
             };
-            DocumentScannerConf documentScannerConf = new DocumentScannerConf();
             Class<?> primaryClassSelection = DocumentScannerExtensionsTestClass.class;
             OCREngine oCREngine = new OCREngine() {
                 @Override
