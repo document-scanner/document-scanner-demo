@@ -55,14 +55,10 @@ import richtercloud.document.scanner.it.entities.ListTestClass;
 import richtercloud.document.scanner.it.entities.PrimitivesTestClass;
 import richtercloud.document.scanner.it.entities.QueryPanelTestClass;
 import richtercloud.document.scanner.setter.ValueSetter;
-import richtercloud.message.handler.BugHandler;
 import richtercloud.message.handler.ConfirmMessageHandler;
-import richtercloud.message.handler.DefaultIssueHandler;
-import richtercloud.message.handler.DialogBugHandler;
 import richtercloud.message.handler.DialogConfirmMessageHandler;
-import richtercloud.message.handler.DialogMessageHandler;
+import richtercloud.message.handler.DialogIssueHandler;
 import richtercloud.message.handler.IssueHandler;
-import richtercloud.message.handler.MessageHandler;
 import richtercloud.reflection.form.builder.ReflectionFormPanel;
 import richtercloud.reflection.form.builder.TransformationException;
 import richtercloud.reflection.form.builder.components.money.AmountMoneyCurrencyStorage;
@@ -129,9 +125,7 @@ public class AutoOCRValueDetectionReflectionFormBuilderDemo extends JFrame {
                 fieldRetriever);
         storage.start();
         for(Class<?> testClass : entityClasses) {
-            MessageHandler messageHandler = new DialogMessageHandler(this);
-            BugHandler bugHandler = new DialogBugHandler(this, "http://example.com", "", "");
-            IssueHandler issueHandler = new DefaultIssueHandler(messageHandler, bugHandler);
+            IssueHandler issueHandler = new DialogIssueHandler(this, "http://example.com");
             ConfirmMessageHandler confirmMessageHandler = new DialogConfirmMessageHandler(this);
             IdApplier idApplier = new GeneratedValueIdApplier();
             IdGenerator idGenerator = MemorySequentialIdGenerator.getInstance();
@@ -139,7 +133,7 @@ public class AutoOCRValueDetectionReflectionFormBuilderDemo extends JFrame {
 
             AutoOCRValueDetectionReflectionFormBuilder instance = new AutoOCRValueDetectionReflectionFormBuilder(storage,
                     "fieldDescriptionDialogTitle",
-                    messageHandler,
+                    issueHandler,
                     confirmMessageHandler,
                     fieldRetriever,
                     idApplier,
@@ -224,7 +218,7 @@ public class AutoOCRValueDetectionReflectionFormBuilderDemo extends JFrame {
             QueryHistoryEntryStorageFactory entryStorageFactory = new XMLFileQueryHistoryEntryStorageFactory(entryStorageFile,
                     entityClasses,
                     false,
-                    messageHandler);
+                    issueHandler);
             QueryHistoryEntryStorage initialQueryTextGenerator = entryStorageFactory.create();
             MainPanel mainPanel = new DefaultMainPanel(entityClasses,
                     primaryClassSelection,
@@ -252,7 +246,7 @@ public class AutoOCRValueDetectionReflectionFormBuilderDemo extends JFrame {
             DocumentScannerFieldHandler fieldHandler = DocumentScannerFieldHandler.create(amountMoneyUsageStatisticsStorage,
                     amountMoneyCurrencyStorage,
                     amountMoneyExchangeRateRetriever,
-                    messageHandler,
+                    issueHandler,
                     confirmMessageHandler,
                     typeHandlerMapping,
                     storage,
