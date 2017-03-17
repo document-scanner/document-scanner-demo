@@ -18,6 +18,7 @@
             <groupId>richtercloud</groupId>
             <artifactId>document-scanner</artifactId>
             <type>jar</type>
+            <version>1.0-beta4</version>
         </dependency>
         <!-- Other dependencies -->
         <dependency>

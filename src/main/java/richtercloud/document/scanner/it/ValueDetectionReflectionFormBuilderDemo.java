@@ -32,7 +32,7 @@ import org.apache.commons.collections4.OrderedMap;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import richtercloud.document.scanner.components.AutoOCRValueDetectionReflectionFormBuilder;
+import richtercloud.document.scanner.components.ValueDetectionReflectionFormBuilder;
 import richtercloud.document.scanner.components.OCRResultPanelFetcher;
 import richtercloud.document.scanner.components.OCRResultPanelFetcherProgressListener;
 import richtercloud.document.scanner.components.ScanResultPanelFetcher;
@@ -92,14 +92,14 @@ import richtercloud.reflection.form.builder.typehandler.TypeHandler;
  *
  * @author richter
  */
-public class AutoOCRValueDetectionReflectionFormBuilderDemo extends JFrame {
+public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
     private static final long serialVersionUID = 1L;
-    private final static Logger LOGGER = LoggerFactory.getLogger(AutoOCRValueDetectionReflectionFormBuilderDemo.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ValueDetectionReflectionFormBuilderDemo.class);
 
     /**
-     * Test of getComboBoxModelMap method, of class AutoOCRValueDetectionReflectionFormBuilder.
+     * Test of getComboBoxModelMap method, of class ValueDetectionReflectionFormBuilder.
      */
-    public AutoOCRValueDetectionReflectionFormBuilderDemo() throws IOException, QueryHistoryEntryStorageCreationException, InstantiationException, IllegalAccessException, TransformationException, StorageConfValidationException, StorageCreationException {
+    public ValueDetectionReflectionFormBuilderDemo() throws IOException, QueryHistoryEntryStorageCreationException, InstantiationException, IllegalAccessException, TransformationException, StorageConfValidationException, StorageCreationException {
         //There's no mocking in integration tests, but for the GUI test it's
         //fine.
         Set<Class<?>> entityClasses = new HashSet<>(Arrays.asList(DocumentScannerExtensionsTestClass.class,
@@ -109,10 +109,10 @@ public class AutoOCRValueDetectionReflectionFormBuilderDemo extends JFrame {
                 QueryPanelTestClass.class,
                 PrimitivesTestClass.class,
                 EntityB.class));
-        File databaseDir = File.createTempFile(AutoOCRValueDetectionReflectionFormBuilderDemo.class.getSimpleName(), null);
+        File databaseDir = File.createTempFile(ValueDetectionReflectionFormBuilderDemo.class.getSimpleName(), null);
         FileUtils.forceDelete(databaseDir);
         String databaseName = databaseDir.getAbsolutePath();
-        File schemeChecksumFile = File.createTempFile(AutoOCRValueDetectionReflectionFormBuilderDemo.class.getSimpleName(), null);
+        File schemeChecksumFile = File.createTempFile(ValueDetectionReflectionFormBuilderDemo.class.getSimpleName(), null);
         DerbyEmbeddedPersistenceStorageConf storageConf = new DerbyEmbeddedPersistenceStorageConf(entityClasses,
                 databaseName,
                 schemeChecksumFile);
@@ -131,7 +131,7 @@ public class AutoOCRValueDetectionReflectionFormBuilderDemo extends JFrame {
             IdGenerator idGenerator = MemorySequentialIdGenerator.getInstance();
             DocumentScannerConf documentScannerConf = new DocumentScannerConf();
 
-            AutoOCRValueDetectionReflectionFormBuilder instance = new AutoOCRValueDetectionReflectionFormBuilder(storage,
+            ValueDetectionReflectionFormBuilder instance = new ValueDetectionReflectionFormBuilder(storage,
                     "fieldDescriptionDialogTitle",
                     issueHandler,
                     confirmMessageHandler,
@@ -213,7 +213,7 @@ public class AutoOCRValueDetectionReflectionFormBuilderDemo extends JFrame {
             TagStorage tagStorage = new MemoryTagStorage();
             Map<Class<?>, WarningHandler<?>> warningHandlers = new HashMap<>();
             FieldInitializer fieldInitializer = new ReflectionFieldInitializer(fieldRetriever);
-            File entryStorageFile = File.createTempFile(AutoOCRValueDetectionReflectionFormBuilderDemo.class.getSimpleName(),
+            File entryStorageFile = File.createTempFile(ValueDetectionReflectionFormBuilderDemo.class.getSimpleName(),
                     null);
             QueryHistoryEntryStorageFactory entryStorageFactory = new XMLFileQueryHistoryEntryStorageFactory(entryStorageFile,
                     entityClasses,
@@ -292,7 +292,7 @@ public class AutoOCRValueDetectionReflectionFormBuilderDemo extends JFrame {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
-                new AutoOCRValueDetectionReflectionFormBuilderDemo().setVisible(true);
+                new ValueDetectionReflectionFormBuilderDemo().setVisible(true);
             } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | IOException | QueryHistoryEntryStorageCreationException | TransformationException | StorageConfValidationException | StorageCreationException ex) {
                 throw new RuntimeException(ex);
             }
