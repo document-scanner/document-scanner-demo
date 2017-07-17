@@ -89,6 +89,7 @@ import richtercloud.reflection.form.builder.storage.StorageConfValidationExcepti
 import richtercloud.reflection.form.builder.storage.StorageCreationException;
 import richtercloud.reflection.form.builder.storage.StorageException;
 import richtercloud.reflection.form.builder.typehandler.TypeHandler;
+import richtercloud.validation.tools.FieldRetrievalException;
 
 /**
  *
@@ -111,7 +112,7 @@ public class CommunicationTreePanelDemo extends JFrame {
     private final QueryHistoryEntryStorage entryStorage;
     private final File fileCacheFile;
 
-    public CommunicationTreePanelDemo() throws IOException, StorageException, SQLException, NoSuchFieldException, StorageConfValidationException, StorageCreationException, QueryHistoryEntryStorageCreationException, IdApplicationException, TransformationException {
+    public CommunicationTreePanelDemo() throws IOException, StorageException, SQLException, NoSuchFieldException, StorageConfValidationException, StorageCreationException, QueryHistoryEntryStorageCreationException, IdApplicationException, TransformationException, FieldRetrievalException {
         File entryStorageFile = File.createTempFile(CommunicationTreePanelDemo.class.getSimpleName(), null);
         QueryHistoryEntryStorageFactory entryStorageFactory = new XMLFileQueryHistoryEntryStorageFactory(entryStorageFile,
                 Constants.ENTITY_CLASSES,
@@ -364,7 +365,7 @@ public class CommunicationTreePanelDemo extends JFrame {
             public void run() {
                 try {
                     new CommunicationTreePanelDemo().setVisible(true);
-                } catch (IOException | StorageException | SQLException | NoSuchFieldException | StorageCreationException | StorageConfValidationException | QueryHistoryEntryStorageCreationException | TransformationException | IdApplicationException ex) {
+                } catch (IOException | StorageException | SQLException | NoSuchFieldException | StorageCreationException | StorageConfValidationException | QueryHistoryEntryStorageCreationException | TransformationException | IdApplicationException | FieldRetrievalException ex) {
                     throw new RuntimeException(ex);
                 }
             }

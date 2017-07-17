@@ -86,6 +86,7 @@ import richtercloud.reflection.form.builder.jpa.storage.ReflectionFieldInitializ
 import richtercloud.reflection.form.builder.storage.StorageConfValidationException;
 import richtercloud.reflection.form.builder.storage.StorageCreationException;
 import richtercloud.reflection.form.builder.typehandler.TypeHandler;
+import richtercloud.validation.tools.FieldRetrievalException;
 
 /**
  * Demo for resizability of class components.
@@ -99,7 +100,7 @@ public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
     /**
      * Test of getComboBoxModelMap method, of class ValueDetectionReflectionFormBuilder.
      */
-    public ValueDetectionReflectionFormBuilderDemo() throws IOException, QueryHistoryEntryStorageCreationException, InstantiationException, IllegalAccessException, TransformationException, StorageConfValidationException, StorageCreationException {
+    public ValueDetectionReflectionFormBuilderDemo() throws IOException, QueryHistoryEntryStorageCreationException, InstantiationException, IllegalAccessException, TransformationException, StorageConfValidationException, StorageCreationException, FieldRetrievalException {
         //There's no mocking in integration tests, but for the GUI test it's
         //fine.
         Set<Class<?>> entityClasses = new HashSet<>(Arrays.asList(DocumentScannerExtensionsTestClass.class,
@@ -293,7 +294,7 @@ public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
         SwingUtilities.invokeLater(() -> {
             try {
                 new ValueDetectionReflectionFormBuilderDemo().setVisible(true);
-            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | IOException | QueryHistoryEntryStorageCreationException | TransformationException | StorageConfValidationException | StorageCreationException ex) {
+            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | IOException | QueryHistoryEntryStorageCreationException | TransformationException | StorageConfValidationException | StorageCreationException | FieldRetrievalException ex) {
                 throw new RuntimeException(ex);
             }
         });
