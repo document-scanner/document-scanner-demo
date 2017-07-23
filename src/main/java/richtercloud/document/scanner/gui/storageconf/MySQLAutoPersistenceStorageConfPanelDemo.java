@@ -34,6 +34,8 @@ import richtercloud.reflection.form.builder.jpa.storage.MySQLAutoPersistenceStor
  */
 public class MySQLAutoPersistenceStorageConfPanelDemo {
     private final static Logger LOGGER = LoggerFactory.getLogger(MySQLAutoPersistenceStorageConfPanelDemo.class);
+    private final static String DOWNLOAD_FAILED = "Download failed (result is false)!";
+    private final static String FAILURE = "Failure";
 
     public static void main(String[] args) throws IOException {
         testMySQLDownload();
@@ -75,8 +77,8 @@ public class MySQLAutoPersistenceStorageConfPanelDemo {
                 md5Sum);
         if(!result) {
             JOptionPane.showConfirmDialog(instance,
-                    "Download failed (result is false)!",
-                    "Failure",
+                    DOWNLOAD_FAILED,
+                    FAILURE,
                     JOptionPane.OK_OPTION,
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -99,8 +101,8 @@ public class MySQLAutoPersistenceStorageConfPanelDemo {
                 md5Sum);
         if(!result) {
             JOptionPane.showConfirmDialog(instance,
-                    "Download failed (result is false)!",
-                    "Failure",
+                    DOWNLOAD_FAILED,
+                    FAILURE,
                     JOptionPane.OK_OPTION,
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -123,8 +125,8 @@ public class MySQLAutoPersistenceStorageConfPanelDemo {
                 md5Sum);
         if(!result) {
             JOptionPane.showConfirmDialog(instance,
-                    "Download failed (result is false)!",
-                    "Failure",
+                    DOWNLOAD_FAILED,
+                    FAILURE,
                     JOptionPane.OK_OPTION,
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -147,8 +149,8 @@ public class MySQLAutoPersistenceStorageConfPanelDemo {
                 md5Sum);
         if(!result) {
             JOptionPane.showConfirmDialog(instance,
-                    "Download failed (result is false)!",
-                    "Failure",
+                    DOWNLOAD_FAILED,
+                    FAILURE,
                     JOptionPane.OK_OPTION,
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -171,8 +173,8 @@ public class MySQLAutoPersistenceStorageConfPanelDemo {
                 md5Sum);
         if(!result) {
             JOptionPane.showConfirmDialog(instance,
-                    "Download failed (result is false)!",
-                    "Failure",
+                    DOWNLOAD_FAILED,
+                    FAILURE,
                     JOptionPane.OK_OPTION,
                     JOptionPane.ERROR_MESSAGE);
         }

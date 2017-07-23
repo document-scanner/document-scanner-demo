@@ -160,12 +160,12 @@ public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
 
                 @Override
                 public void addProgressListener(OCRResultPanelFetcherProgressListener progressListener) {
-                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    throw new UnsupportedOperationException();
                 }
 
                 @Override
                 public void removeProgressListener(OCRResultPanelFetcherProgressListener progressListener) {
-                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    throw new UnsupportedOperationException();
                 }
             };
             ScanResultPanelFetcher scanResultPanelFetcher = new ScanResultPanelFetcher() {
@@ -198,17 +198,17 @@ public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
 
                 @Override
                 public void addProgressListener(OCREngineProgressListener progressListener) {
-                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    throw new UnsupportedOperationException();
                 }
 
                 @Override
                 public void removeProgressListener(OCREngineProgressListener progressListener) {
-                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    throw new UnsupportedOperationException();
                 }
 
                 @Override
                 public OCREngineConf getoCREngineConf() {
-                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    throw new UnsupportedOperationException();
                 }
             };
             TagStorage tagStorage = new MemoryTagStorage();
