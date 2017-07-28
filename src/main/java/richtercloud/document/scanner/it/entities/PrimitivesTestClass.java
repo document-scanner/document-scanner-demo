@@ -25,19 +25,33 @@ import javax.persistence.Id;
 @Entity
 public class PrimitivesTestClass implements Serializable {
     private static final long serialVersionUID = 1L;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private int a;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private Integer b;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private boolean c;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private Boolean d;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private float e;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private Float f;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private double g;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private Double h;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private byte i;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private Byte j;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private long k;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private Long l;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private short m;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private Short n;
     @Id
     private Long id;

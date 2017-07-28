@@ -31,12 +31,16 @@ import javax.persistence.OneToOne;
 public class QueryPanelTestClass implements Serializable {
     private static final long serialVersionUID = 1L;
     @OneToOne
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private EntityB a;
     @ManyToOne
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private EntityB b;
     @OneToMany
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private List<EntityB> c;
     @ManyToMany
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private List<EntityB> d;
     @Id
     private Long id;

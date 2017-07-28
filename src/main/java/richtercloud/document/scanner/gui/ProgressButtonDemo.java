@@ -69,6 +69,7 @@ public class ProgressButtonDemo extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    @SuppressWarnings("PMD.UnusedFormalParameter")
     private void progressButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_progressButtonActionPerformed
         Thread thread = new Thread(() -> {
             int n = 10, i=0;

@@ -36,12 +36,16 @@ import richtercloud.document.scanner.model.WorkflowItem;
 public class DocumentScannerExtensionsTestClass implements Serializable {
     private static final long serialVersionUID = 1L;
     @OCRResult
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private String a;
     @ScanResult
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private List<ImageWrapper> b;
     @CommunicationTree
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private List<WorkflowItem> c = new LinkedList<>();
     @Tags
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private Set<String> d = new HashSet<>();
     @Id
     private Long id;

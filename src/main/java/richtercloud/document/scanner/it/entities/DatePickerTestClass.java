@@ -25,7 +25,9 @@ import javax.persistence.Id;
 @Entity
 public class DatePickerTestClass implements Serializable {
     private static final long serialVersionUID = 1L;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private java.sql.Date a;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private java.util.Date b;
     @Id
     private Long id;

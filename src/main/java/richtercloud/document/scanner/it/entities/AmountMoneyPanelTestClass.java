@@ -27,6 +27,7 @@ import org.jscience.physics.amount.Amount;
 @Entity
 public class AmountMoneyPanelTestClass implements Serializable {
     private static final long serialVersionUID = 1L;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private Amount<Money> a;
     @Id
     private Long id;

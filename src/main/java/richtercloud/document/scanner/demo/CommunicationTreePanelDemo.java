@@ -312,14 +312,12 @@ public class CommunicationTreePanelDemo extends JFrame {
                 null, //oCRResultPanelFetcher
                 null, //scanResultPanelFetcher
                 documentScannerConf,
-                this, //oCRProgressMonitorParent
                 storage,
                 Constants.ENTITY_CLASSES, //entityClasses
                 Constants.PRIMARY_CLASS_SELECTION, //primaryClassSelection
                 null, //mainPanel @TODO: figure out whether this is a good idea
                 tagStorage,
                 idApplier,
-                warningHandlers,
                 fieldInitializer,
                 entryStorage,
                 fieldRetriever

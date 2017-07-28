@@ -25,8 +25,11 @@ import javax.persistence.Id;
 @Entity
 public class EntityB implements Serializable {
     private static final long serialVersionUID = 1L;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private String a = "kfldsafklödjsaklfjdsklafjsdklajfklsdjafklösdjalö";
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private String b = "klfdösjafkldjslaköfjdklsajfklsdjaflöksdjfklösdjf";
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private String c = "kfldösafkldsjflösdajfklösdjfklösdjafklösdjaklöf";
     @Id
     private Long id;

@@ -30,8 +30,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import org.apache.commons.collections4.OrderedMap;
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import richtercloud.document.scanner.components.OCRResultPanelFetcher;
 import richtercloud.document.scanner.components.OCRResultPanelFetcherProgressListener;
 import richtercloud.document.scanner.components.ScanResultPanelFetcher;
@@ -95,7 +93,6 @@ import richtercloud.validation.tools.FieldRetrievalException;
  */
 public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
     private static final long serialVersionUID = 1L;
-    private final static Logger LOGGER = LoggerFactory.getLogger(ValueDetectionReflectionFormBuilderDemo.class);
 
     /**
      * Test of getComboBoxModelMap method, of class ValueDetectionReflectionFormBuilder.
@@ -233,7 +230,6 @@ public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
                     oCREngine,
                     typeHandlerMapping,
                     documentScannerConf,
-                    this, //oCRProgressMonitorParent
                     tagStorage,
                     idApplier,
                     idGenerator,
@@ -256,13 +252,11 @@ public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
                     oCRResultPanelFetcher,
                     scanResultPanelFetcher,
                     documentScannerConf,
-                    this, //oCRProgressMonitorParent
                     entityClasses,
                     primaryClassSelection,
                     mainPanel,
                     tagStorage,
                     idApplier,
-                    warningHandlers,
                     initialQueryLimit,
                     bidirectionalHelpDialogTitle,
                     fieldInitializer,

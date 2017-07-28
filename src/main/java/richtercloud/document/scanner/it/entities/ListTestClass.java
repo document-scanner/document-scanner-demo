@@ -26,13 +26,21 @@ import javax.persistence.Id;
 @Entity
 public class ListTestClass implements Serializable {
     private static final long serialVersionUID = 1L;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private List<String> a;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private List<Boolean> b;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private List<Float> c;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private List<Double> d;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private List<Integer> e;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private List<Short> f;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private List<Byte> g;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private List<Long> h;
     @Id
     private Long id;
