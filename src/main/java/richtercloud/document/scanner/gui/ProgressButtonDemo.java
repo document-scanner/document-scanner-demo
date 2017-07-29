@@ -15,6 +15,8 @@
 
 package richtercloud.document.scanner.gui;
 
+import java.awt.HeadlessException;
+
 /**
  *
  * @author richter
@@ -23,9 +25,12 @@ public class ProgressButtonDemo extends javax.swing.JFrame {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Creates new form ProgressButtonDemo
+     * Creates a new {@code ProgressButtonDemo}.
+     *
+     * @throws HeadlessException allows to skip the constructor test on a remote
+     * CI service
      */
-    public ProgressButtonDemo() {
+    public ProgressButtonDemo() throws HeadlessException {
         initComponents();
     }
 

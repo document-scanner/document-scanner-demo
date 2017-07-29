@@ -14,169 +14,172 @@
  */
 package richtercloud.document.scanner.gui.storageconf;
 
+import java.awt.EventQueue;
+import java.awt.HeadlessException;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Set;
-import javax.swing.JOptionPane;
+import javax.swing.JFrame;
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import richtercloud.document.scanner.gui.Constants;
+import richtercloud.jhbuild.java.wrapper.DownloadCombi;
+import richtercloud.jhbuild.java.wrapper.ExtractionException;
+import richtercloud.jhbuild.java.wrapper.ExtractionMode;
 import richtercloud.message.handler.ConfirmMessageHandler;
+import richtercloud.message.handler.DialogBugHandler;
 import richtercloud.message.handler.DialogConfirmMessageHandler;
+import richtercloud.message.handler.DialogIssueHandler;
 import richtercloud.message.handler.DialogMessageHandler;
-import richtercloud.message.handler.MessageHandler;
+import richtercloud.message.handler.IssueHandler;
 import richtercloud.reflection.form.builder.jpa.storage.MySQLAutoPersistenceStorageConf;
 
 /**
  *
  * @author richter
  */
-public class MySQLAutoPersistenceStorageConfPanelDemo {
-    private final static Logger LOGGER = LoggerFactory.getLogger(MySQLAutoPersistenceStorageConfPanelDemo.class);
-    private final static String DOWNLOAD_FAILED = "Download failed (result is false)!";
-    private final static String FAILURE = "Failure";
+public class MySQLAutoPersistenceStorageConfPanelDemo extends JFrame {
+    private static final long serialVersionUID = 1L;
 
-    public static void main(String[] args) throws IOException {
-        testMySQLDownload();
-    }
-
-    /**
-     * Test of mySQLDownload method, of class MySQLAutoPersistenceStorageConfPanel.
-     */
-    public static void testMySQLDownload() throws IOException {
-        LOGGER.debug("Running download test for Linux 32-bit");
+    public MySQLAutoPersistenceStorageConfPanelDemo() throws HeadlessException, IOException, ExtractionException {
         //Linux 32-bit
-        String downloadURL = MySQLAutoPersistenceStorageConfPanel.DOWNLOAD_URL_LINUX_32;
-        String downloadTarget = MySQLAutoPersistenceStorageConfPanel.MYSQL_DOWNLOAD_TARGET_LINUX_32;
-        int extractionMode = MySQLAutoPersistenceStorageConfPanel.EXTRACTION_MODE_TAR_GZ;
-        String extractionDir = MySQLAutoPersistenceStorageConfPanel.MYSQL_EXTRACTION_TARGET_LINUX_32;
-        String md5Sum = MySQLAutoPersistenceStorageConfPanel.MD5_SUM_LINUX_32;
+        final String downloadURLLinux32 = MySQLAutoPersistenceStorageConfPanel.MYSQL_DOWNLOAD_URL_LINUX_32;
+        final String downloadTargetLinux32 = MySQLAutoPersistenceStorageConfPanel.MYSQL_DOWNLOAD_TARGET_LINUX_32;
+        final ExtractionMode extractionModeLinux32 = MySQLAutoPersistenceStorageConfPanel.MYSQL_EXTRACTION_MODE_LINUX_32;
+        final String extractionDirLinux32 = MySQLAutoPersistenceStorageConfPanel.MYSQL_EXTRACTION_LOCATION_LINUX_32;
+        final String md5SumLinux32 = MySQLAutoPersistenceStorageConfPanel.MD5_SUM_LINUX_32;
         Set<Class<?>> entityClasses = Constants.ENTITY_CLASSES;
         String username = "documentScanner";
-        File databaseDir = File.createTempFile(MySQLAutoPersistenceStorageConfPanelDemo.class.getSimpleName(), null);
+        File databaseDir = Files.createTempDirectory(MySQLAutoPersistenceStorageConfPanelDemo.class.getSimpleName()).toFile();
         FileUtils.forceDelete(databaseDir);
+            //databaseDir mustn't exist for MySQL
         File schemeChecksumFile = File.createTempFile(MySQLAutoPersistenceStorageConfPanelDemo.class.getSimpleName(), null);
         MySQLAutoPersistenceStorageConf storageConf = new MySQLAutoPersistenceStorageConf(entityClasses,
                 username,
                 databaseDir.getAbsolutePath(),
                 schemeChecksumFile);
-        MessageHandler messageHandler = new DialogMessageHandler(null //parent
-        );
+        IssueHandler issueHandler = new DialogIssueHandler(new DialogMessageHandler(null //parent
+                ),
+                new DialogBugHandler(null, //parent
+                        "[bug reporting URL]"));
         ConfirmMessageHandler confirmMessageHandler = new DialogConfirmMessageHandler(null //parent
         );
         MySQLAutoPersistenceStorageConfPanel instance = new MySQLAutoPersistenceStorageConfPanel(
                 storageConf,
-                messageHandler,
+                issueHandler,
                 confirmMessageHandler,
-                false);
-        boolean result = instance.mySQLDownload(downloadURL,
-                downloadTarget,
-                extractionMode,
-                extractionDir,
-                md5Sum);
-        if(!result) {
-            JOptionPane.showConfirmDialog(instance,
-                    DOWNLOAD_FAILED,
-                    FAILURE,
-                    JOptionPane.OK_OPTION,
-                    JOptionPane.ERROR_MESSAGE);
-        }
-        LOGGER.debug("Running download test for Linux 64-bit");
+                false) {
+            @Override
+            protected DownloadCombi getDownloadCombi() {
+                return new DownloadCombi(downloadURLLinux32,
+                        downloadTargetLinux32,
+                        extractionModeLinux32,
+                        extractionDirLinux32,
+                        md5SumLinux32);
+            }
+        };
+        this.getContentPane().add(instance);
         //Linux 64-bit
-        downloadURL = MySQLAutoPersistenceStorageConfPanel.DOWNLOAD_URL_LINUX_64;
-        downloadTarget = MySQLAutoPersistenceStorageConfPanel.MYSQL_DOWNLOAD_TARGET_LINUX_64;
-        extractionMode = MySQLAutoPersistenceStorageConfPanel.EXTRACTION_MODE_TAR_GZ;
-        extractionDir = MySQLAutoPersistenceStorageConfPanel.MYSQL_EXTRACTION_TARGET_LINUX_64;
-        md5Sum = MySQLAutoPersistenceStorageConfPanel.MD5_SUM_LINUX_64;
+        final String downloadURLLinux64 = MySQLAutoPersistenceStorageConfPanel.MYSQL_DOWNLOAD_URL_LINUX_64;
+        final String downloadTargetLinux64 = MySQLAutoPersistenceStorageConfPanel.MYSQL_DOWNLOAD_TARGET_LINUX_64;
+        final ExtractionMode extractionModeLinux64 = MySQLAutoPersistenceStorageConfPanel.MYSQL_EXTRACTION_MODE_LINUX_64;
+        final String extractionDirLinux64 = MySQLAutoPersistenceStorageConfPanel.MYSQL_EXTRACTION_LOCATION_LINUX_64;
+        final String md5SumLinux64 = MySQLAutoPersistenceStorageConfPanel.MD5_SUM_LINUX_64;
         instance = new MySQLAutoPersistenceStorageConfPanel(
                 storageConf,
-                messageHandler,
+                issueHandler,
                 confirmMessageHandler,
-                false);
-        result = instance.mySQLDownload(downloadURL,
-                downloadTarget,
-                extractionMode,
-                extractionDir,
-                md5Sum);
-        if(!result) {
-            JOptionPane.showConfirmDialog(instance,
-                    DOWNLOAD_FAILED,
-                    FAILURE,
-                    JOptionPane.OK_OPTION,
-                    JOptionPane.ERROR_MESSAGE);
-        }
-        LOGGER.debug("Running download test for Windows 32-bit");
+                false) {
+            @Override
+            protected DownloadCombi getDownloadCombi() {
+                return new DownloadCombi(downloadURLLinux64,
+                        downloadTargetLinux64,
+                        extractionModeLinux64,
+                        extractionDirLinux64,
+                        md5SumLinux64);
+            }
+        };
+        this.getContentPane().add(instance);
         //Windows 32-bit
-        downloadURL = MySQLAutoPersistenceStorageConfPanel.DOWNLOAD_URL_WINDOWS_32;
-        downloadTarget = MySQLAutoPersistenceStorageConfPanel.MYSQL_DOWNLOAD_TARGET_WINDOWS_32;
-        extractionMode = MySQLAutoPersistenceStorageConfPanel.EXTRACTION_MODE_ZIP;
-        extractionDir = MySQLAutoPersistenceStorageConfPanel.MYSQL_EXTRACTION_TARGET_WINDOWS_32;
-        md5Sum = MySQLAutoPersistenceStorageConfPanel.MD5_SUM_WINDOWS_32;
+        final String downloadURLWindows32 = MySQLAutoPersistenceStorageConfPanel.MYSQL_DOWNLOAD_URL_WINDOWS_32;
+        final String downloadTargetWindows32 = MySQLAutoPersistenceStorageConfPanel.MYSQL_DOWNLOAD_TARGET_WINDOWS_32;
+        final ExtractionMode extractionModeWindows32 = MySQLAutoPersistenceStorageConfPanel.MYSQL_EXTRACTION_MODE_WINDOWS_32;
+        final String extractionDirWindows32 = MySQLAutoPersistenceStorageConfPanel.MYSQL_EXTRACTION_LOCATION_WINDOWS_32;
+        final String md5SumWindows32 = MySQLAutoPersistenceStorageConfPanel.MD5_SUM_WINDOWS_32;
         instance = new MySQLAutoPersistenceStorageConfPanel(
                 storageConf,
-                messageHandler,
+                issueHandler,
                 confirmMessageHandler,
-                false);
-        result = instance.mySQLDownload(downloadURL,
-                downloadTarget,
-                extractionMode,
-                extractionDir,
-                md5Sum);
-        if(!result) {
-            JOptionPane.showConfirmDialog(instance,
-                    DOWNLOAD_FAILED,
-                    FAILURE,
-                    JOptionPane.OK_OPTION,
-                    JOptionPane.ERROR_MESSAGE);
-        }
-        LOGGER.debug("Running download test for Windows 64-bit");
+                false) {
+            @Override
+            protected DownloadCombi getDownloadCombi() {
+                return new DownloadCombi(downloadURLWindows32,
+                        downloadTargetWindows32,
+                        extractionModeWindows32,
+                        extractionDirWindows32,
+                        md5SumWindows32);
+            }
+        };
+        this.getContentPane().add(instance);
         //Windows 64-bit
-        downloadURL = MySQLAutoPersistenceStorageConfPanel.DOWNLOAD_URL_WINDOWS_64;
-        downloadTarget = MySQLAutoPersistenceStorageConfPanel.MYSQL_DOWNLOAD_TARGET_WINDOWS_64;
-        extractionMode = MySQLAutoPersistenceStorageConfPanel.EXTRACTION_MODE_ZIP;
-        extractionDir = MySQLAutoPersistenceStorageConfPanel.MYSQL_EXTRACTION_TARGET_WINDOWS_64;
-        md5Sum = MySQLAutoPersistenceStorageConfPanel.MD5_SUM_WINDOWS_64;
+        final String downloadURLWindows64 = MySQLAutoPersistenceStorageConfPanel.MYSQL_DOWNLOAD_URL_WINDOWS_64;
+        final String downloadTargetWindows64 = MySQLAutoPersistenceStorageConfPanel.MYSQL_DOWNLOAD_TARGET_WINDOWS_64;
+        final ExtractionMode extractionModeWindows64 = MySQLAutoPersistenceStorageConfPanel.MYSQL_EXTRACTION_MODE_WINDOWS_64;
+        final String extractionDirWindows64 = MySQLAutoPersistenceStorageConfPanel.MYSQL_EXTRACTION_LOCATION_WINDOWS_64;
+        final String md5SumWindows64 = MySQLAutoPersistenceStorageConfPanel.MD5_SUM_WINDOWS_64;
         instance = new MySQLAutoPersistenceStorageConfPanel(
                 storageConf,
-                messageHandler,
+                issueHandler,
                 confirmMessageHandler,
-                false);
-        result = instance.mySQLDownload(downloadURL,
-                downloadTarget,
-                extractionMode,
-                extractionDir,
-                md5Sum);
-        if(!result) {
-            JOptionPane.showConfirmDialog(instance,
-                    DOWNLOAD_FAILED,
-                    FAILURE,
-                    JOptionPane.OK_OPTION,
-                    JOptionPane.ERROR_MESSAGE);
-        }
-        LOGGER.debug("Running download test for Mac OSX 64-bit");
+                false) {
+            @Override
+            protected DownloadCombi getDownloadCombi() {
+                return new DownloadCombi(downloadURLWindows64,
+                        downloadTargetWindows64,
+                        extractionModeWindows64,
+                        extractionDirWindows64,
+                        md5SumWindows64);
+            }
+        };
+        this.getContentPane().add(instance);
         //Mac OSX 64-bit
-        downloadURL = MySQLAutoPersistenceStorageConfPanel.DOWNLOAD_URL_MAC_OSX_64;
-        downloadTarget = MySQLAutoPersistenceStorageConfPanel.MYSQL_DOWNLOAD_TARGET_MAC_OSX_64;
-        extractionMode = MySQLAutoPersistenceStorageConfPanel.EXTRACTION_MODE_TAR_GZ;
-        extractionDir = MySQLAutoPersistenceStorageConfPanel.MYSQL_EXTRACTION_TARGET_MAC_OSX_64;
-        md5Sum = MySQLAutoPersistenceStorageConfPanel.MD5_SUM_MAC_OSX_64;
+        final String downloadURLMacOSX64 = MySQLAutoPersistenceStorageConfPanel.MYSQL_DOWNLOAD_URL_MAC_OSX_64;
+        final String downloadTargetMacOSX64 = MySQLAutoPersistenceStorageConfPanel.MYSQL_DOWNLOAD_TARGET_MAC_OSX_64;
+        final ExtractionMode extractionModeMacOSX64 = MySQLAutoPersistenceStorageConfPanel.MYSQL_EXTRACTION_MODE_MAC_OSX_64;
+        final String extractionDirMacOSX64 = MySQLAutoPersistenceStorageConfPanel.MYSQL_EXTRACTION_LOCATION_MAC_OSX_64;
+        final String md5SumMacOSX64 = MySQLAutoPersistenceStorageConfPanel.MD5_SUM_MAC_OSX_64;
         instance = new MySQLAutoPersistenceStorageConfPanel(
                 storageConf,
-                messageHandler,
+                issueHandler,
                 confirmMessageHandler,
-                false);
-        result = instance.mySQLDownload(downloadURL,
-                downloadTarget,
-                extractionMode,
-                extractionDir,
-                md5Sum);
-        if(!result) {
-            JOptionPane.showConfirmDialog(instance,
-                    DOWNLOAD_FAILED,
-                    FAILURE,
-                    JOptionPane.OK_OPTION,
-                    JOptionPane.ERROR_MESSAGE);
-        }
+                false) {
+            @Override
+            protected DownloadCombi getDownloadCombi() {
+                return new DownloadCombi(downloadURLMacOSX64,
+                        downloadTargetMacOSX64,
+                        extractionModeMacOSX64,
+                        extractionDirMacOSX64,
+                        md5SumMacOSX64);
+            }
+        };
+        this.getContentPane().add(instance);
+        setSize(800, 600);
+        pack();
+    }
+
+    public static void main(String[] args) throws IOException, ExtractionException {
+        EventQueue.invokeLater(() -> {
+            MySQLAutoPersistenceStorageConfPanelDemo instance = null;
+            try {
+                instance = new MySQLAutoPersistenceStorageConfPanelDemo();
+                instance.setVisible(true);
+            } catch (IOException | ExtractionException | HeadlessException ex) {
+                if(instance != null) {
+                    instance.setVisible(false);
+                    instance.dispose();
+                }
+                throw new RuntimeException(ex);
+            }
+        });
     }
 }

@@ -14,8 +14,10 @@
  */
 package richtercloud.document.scanner.demo;
 
+import java.awt.HeadlessException;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -65,13 +67,15 @@ import richtercloud.reflection.form.builder.fieldhandler.MappingFieldHandler;
 import richtercloud.reflection.form.builder.fieldhandler.factory.AmountMoneyMappingFieldHandlerFactory;
 import richtercloud.reflection.form.builder.jpa.IdGenerator;
 import richtercloud.reflection.form.builder.jpa.JPACachedFieldRetriever;
+import richtercloud.reflection.form.builder.jpa.JPAFieldRetriever;
 import richtercloud.reflection.form.builder.jpa.JPAReflectionFormBuilder;
 import richtercloud.reflection.form.builder.jpa.MemorySequentialIdGenerator;
 import richtercloud.reflection.form.builder.jpa.WarningHandler;
 import richtercloud.reflection.form.builder.jpa.fieldhandler.factory.JPAAmountMoneyMappingFieldHandlerFactory;
-import richtercloud.reflection.form.builder.jpa.idapplier.GeneratedValueIdApplier;
 import richtercloud.reflection.form.builder.jpa.idapplier.IdApplicationException;
 import richtercloud.reflection.form.builder.jpa.idapplier.IdApplier;
+import richtercloud.reflection.form.builder.jpa.idapplier.LongIdPanelIdApplier;
+import richtercloud.reflection.form.builder.jpa.panels.LongIdPanel;
 import richtercloud.reflection.form.builder.jpa.panels.QueryHistoryEntryStorage;
 import richtercloud.reflection.form.builder.jpa.panels.QueryHistoryEntryStorageCreationException;
 import richtercloud.reflection.form.builder.jpa.panels.QueryHistoryEntryStorageFactory;
@@ -100,19 +104,46 @@ public class CommunicationTreePanelDemo extends JFrame {
     private final static Logger LOGGER = LoggerFactory.getLogger(CommunicationTreePanelDemo.class);
     private final static String AMOUNT_MONEY_USAGE_STATISTICS_STORAGE_FILE_NAME = "money-usage-statistics-storage.xml";
     private final static String AMOUNT_MONEY_CURRENCY_STORAGE_FILE_NAME = "currency-storage.xml";
-    private final ReflectionFormPanel reflectionFormPanel;
+    private final ReflectionFormPanel<?> reflectionFormPanel;
     private final IssueHandler messageHandler = new LoggerIssueHandler(LOGGER);
     private final ConfirmMessageHandler confirmMessageHandler = new DialogConfirmMessageHandler(this);
-    private final ReflectionFormBuilder reflectionFormBuilder;
+    private final ReflectionFormBuilder<JPAFieldRetriever> reflectionFormBuilder;
     private final JPACachedFieldRetriever fieldRetriever = new JPACachedFieldRetriever();
-    private final IdApplier idApplier = new GeneratedValueIdApplier();
+    private final IdApplier<LongIdPanel> idApplier = new LongIdPanelIdApplier(MemorySequentialIdGenerator.getInstance());
     private final Map<Class<?>, WarningHandler<?>> warningHandlers = new HashMap<>();
     private final TagStorage tagStorage = new MemoryTagStorage();
     private final boolean deleteDatabase = true;
     private final QueryHistoryEntryStorage entryStorage;
-    private final File fileCacheFile;
+    private final File cacheFileDir;
+    private PersistenceStorage<Long> storage;
 
-    public CommunicationTreePanelDemo() throws IOException, StorageException, SQLException, NoSuchFieldException, StorageConfValidationException, StorageCreationException, QueryHistoryEntryStorageCreationException, IdApplicationException, TransformationException, FieldRetrievalException {
+    /**
+     * Creates a new {@code CommunicationTreePanelDemo}.
+     *
+     * @throws IOException
+     * @throws StorageException
+     * @throws SQLException
+     * @throws NoSuchFieldException
+     * @throws StorageConfValidationException
+     * @throws StorageCreationException
+     * @throws QueryHistoryEntryStorageCreationException
+     * @throws IdApplicationException
+     * @throws TransformationException
+     * @throws FieldRetrievalException
+     * @throws HeadlessException allows to skip the constructor test on a remote
+     * CI service
+     */
+    public CommunicationTreePanelDemo() throws IOException,
+            StorageException,
+            SQLException,
+            NoSuchFieldException,
+            StorageConfValidationException,
+            StorageCreationException,
+            QueryHistoryEntryStorageCreationException,
+            IdApplicationException,
+            TransformationException,
+            FieldRetrievalException,
+            HeadlessException {
         File entryStorageFile = File.createTempFile(CommunicationTreePanelDemo.class.getSimpleName(), null);
         QueryHistoryEntryStorageFactory entryStorageFactory = new XMLFileQueryHistoryEntryStorageFactory(entryStorageFile,
                 Constants.ENTITY_CLASSES,
@@ -125,11 +156,12 @@ public class CommunicationTreePanelDemo extends JFrame {
                 databaseDir.getAbsolutePath(),
                 schemeChecksumFile);
         DriverManager.getConnection(storageConf.getConnectionURL()+";create=true");
-        PersistenceStorage storage = new DerbyEmbeddedPersistenceStorage(storageConf,
+        storage = new DerbyEmbeddedPersistenceStorage(storageConf,
                 "richtercloud_document-scanner-demo_jar_1.0-SNAPSHOTPU",
                 1, //parallelQueryCount
                 this.fieldRetriever
         );
+        storage.start();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOGGER.info("Shutting down storage");
             storage.shutdown();
@@ -149,7 +181,7 @@ public class CommunicationTreePanelDemo extends JFrame {
                 String.format("%s shutdown hook", CommunicationTreePanelDemo.class.getSimpleName())
         ));
         FieldInitializer fieldInitializer = new ReflectionFieldInitializer(fieldRetriever);
-        IdGenerator idGenerator = MemorySequentialIdGenerator.getInstance();
+        IdGenerator<Long> idGenerator = MemorySequentialIdGenerator.getInstance();
         this.reflectionFormBuilder = new JPAReflectionFormBuilder(storage,
                 "fieldDescriptionDialogTitle",
                 messageHandler,
@@ -172,48 +204,52 @@ public class CommunicationTreePanelDemo extends JFrame {
                 new LinkedList<Address>(),
                 new LinkedList<EmailAddress>(),
                 new LinkedList<TelephoneNumber>());
+        TelephoneNumber rootTelephoneNumber = new TelephoneNumber(49,
+                1,
+                2,
+                recipient,
+                TelephoneNumber.TYPE_LANDLINE);
         WorkflowItem root = new TelephoneCall(new Date(1000),
                 new Date(1001),
                 "root",
-                new TelephoneNumber(49,
-                        1,
-                        2,
-                        recipient,
-                        TelephoneNumber.TYPE_LANDLINE),
+                rootTelephoneNumber,
                 sender,
                 recipient);
+        TelephoneNumber reply1TelephoneNumber = new TelephoneNumber(49,
+                1,
+                2,
+                recipient,
+                TelephoneNumber.TYPE_LANDLINE);
         WorkflowItem reply1 = new TelephoneCall(new Date(2000),
                 new Date(2001),
                 "reply1",
-                new TelephoneNumber(49,
-                        1,
-                        2,
-                        recipient,
-                        TelephoneNumber.TYPE_LANDLINE),
+                reply1TelephoneNumber,
                 sender,
                 recipient,
                 new LinkedList<>(Arrays.asList(root)));
         root.getFollowingItems().add(reply1);
+        TelephoneNumber reply2TelephoneNumber = new TelephoneNumber(49,
+                1,
+                2,
+                recipient,
+                TelephoneNumber.TYPE_LANDLINE);
         WorkflowItem reply2 = new TelephoneCall(new Date(3000),
                 new Date(3001),
                 "reply2",
-                new TelephoneNumber(49,
-                        1,
-                        2,
-                        recipient,
-                        TelephoneNumber.TYPE_LANDLINE),
+                reply2TelephoneNumber,
                 sender,
                 recipient,
                 new LinkedList<>(Arrays.asList(root)));
         root.getFollowingItems().add(reply2);
+        TelephoneNumber reply2reply1TelephoneNumber = new TelephoneNumber(49,
+                1,
+                2,
+                recipient,
+                TelephoneNumber.TYPE_LANDLINE);
         WorkflowItem reply2reply1 = new TelephoneCall(new Date(4000),
                 new Date(4001),
                 "reply2reply1",
-                new TelephoneNumber(49,
-                        1,
-                        2,
-                        recipient,
-                        TelephoneNumber.TYPE_LANDLINE),
+                reply2reply1TelephoneNumber,
                 sender,
                 recipient,
                 new LinkedList<>(Arrays.asList(reply2)));
@@ -235,14 +271,34 @@ public class CommunicationTreePanelDemo extends JFrame {
             }
         }
 
-        idApplier.applyId(sender, fieldRetriever.getIdFields(sender.getClass()));
-        idApplier.applyId(recipient, fieldRetriever.getIdFields(recipient.getClass()));
-        idApplier.applyId(reply2reply1, fieldRetriever.getIdFields(reply2reply1.getClass()));
-        idApplier.applyId(reply1, fieldRetriever.getIdFields(reply1.getClass()));
-        idApplier.applyId(reply2, fieldRetriever.getIdFields(reply2.getClass()));
-        idApplier.applyId(root, fieldRetriever.getIdFields(root.getClass()));
+        //apply IDs without the IDApplier because we don't know the components
+        //mapped to ID fields here
+        sender.setId(MemorySequentialIdGenerator.getInstance().getNextId(sender));
+        recipient.setId(MemorySequentialIdGenerator.getInstance().getNextId(recipient));
+        reply2reply1.setId(MemorySequentialIdGenerator.getInstance().getNextId(reply2reply1));
+        reply1.setId(MemorySequentialIdGenerator.getInstance().getNextId(reply1));
+        reply2.setId(MemorySequentialIdGenerator.getInstance().getNextId(reply2));
+        root.setId(MemorySequentialIdGenerator.getInstance().getNextId(root));
+        assert sender.getId() != null;
+        assert recipient.getId() != null;
+        assert reply2reply1.getId() != null;
+        assert reply1.getId() != null;
+        assert reply2.getId() != null;
+        assert root.getId() != null;
+        rootTelephoneNumber.setId(MemorySequentialIdGenerator.getInstance().getNextId(rootTelephoneNumber));
+        reply1TelephoneNumber.setId(MemorySequentialIdGenerator.getInstance().getNextId(reply1TelephoneNumber));
+        reply2TelephoneNumber.setId(MemorySequentialIdGenerator.getInstance().getNextId(reply2TelephoneNumber));
+        reply2reply1TelephoneNumber.setId(MemorySequentialIdGenerator.getInstance().getNextId(reply2reply1TelephoneNumber));
+        assert rootTelephoneNumber.getId() != null;
+        assert reply1TelephoneNumber.getId() != null;
+        assert reply2TelephoneNumber.getId() != null;
+        assert reply2reply1TelephoneNumber.getId() != null;
         storage.store(sender);
         storage.store(recipient);
+        storage.store(rootTelephoneNumber);
+        storage.store(reply1TelephoneNumber);
+        storage.store(reply2TelephoneNumber);
+        storage.store(reply2reply1TelephoneNumber);
         storage.store(reply2reply1);
             //reply1, reply2 and root should be stored through cascading
             //persistence
@@ -263,8 +319,8 @@ public class CommunicationTreePanelDemo extends JFrame {
                 Constants.BIDIRECTIONAL_HELP_DIALOG_TITLE,
                 fieldRetriever);
         Map<java.lang.reflect.Type, TypeHandler<?,?,?,?>> typeHandlerMapping = fieldHandlerFactory.generateTypeHandlerMapping();
-        fileCacheFile = File.createTempFile(CommunicationTreePanelDemo.class.getSimpleName(), null);
-        AmountMoneyExchangeRateRetriever amountMoneyExchangeRateRetriever = new FailsafeAmountMoneyExchangeRateRetriever(fileCacheFile);
+        cacheFileDir = Files.createTempDirectory(CommunicationTreePanelDemo.class.getSimpleName()).toFile();
+        AmountMoneyExchangeRateRetriever amountMoneyExchangeRateRetriever = new FailsafeAmountMoneyExchangeRateRetriever(cacheFileDir);
 
         AmountMoneyMappingFieldHandlerFactory embeddableFieldHandlerFactory = new AmountMoneyMappingFieldHandlerFactory(amountMoneyUsageStatisticsStorage,
                 amountMoneyCurrencyStorage,
@@ -326,6 +382,8 @@ public class CommunicationTreePanelDemo extends JFrame {
                 root,
                 fieldHandler);
         JScrollPane reflectionFormPanelScrollPane = new JScrollPane(this.reflectionFormPanel);
+        reflectionFormPanelScrollPane.getVerticalScrollBar().setUnitIncrement(richtercloud.document.scanner.ifaces.Constants.DEFAULT_SCROLL_INTERVAL);
+        reflectionFormPanelScrollPane.getVerticalScrollBar().setUnitIncrement(richtercloud.document.scanner.ifaces.Constants.DEFAULT_SCROLL_INTERVAL);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         GroupLayout groupLayout = new GroupLayout(this.getContentPane());
         this.getContentPane().setLayout(groupLayout);
@@ -336,6 +394,10 @@ public class CommunicationTreePanelDemo extends JFrame {
         groupLayout.setHorizontalGroup(horizontalGroup);
         groupLayout.setVerticalGroup(verticalGroup);
         pack();
+    }
+
+    public PersistenceStorage<Long> getStorage() {
+        return storage;
     }
 
     /**
@@ -361,9 +423,15 @@ public class CommunicationTreePanelDemo extends JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
+                CommunicationTreePanelDemo communicationTreePanelDemo = null;
                 try {
-                    new CommunicationTreePanelDemo().setVisible(true);
+                    communicationTreePanelDemo = new CommunicationTreePanelDemo();
+                    communicationTreePanelDemo.setVisible(true);
                 } catch (IOException | StorageException | SQLException | NoSuchFieldException | StorageCreationException | StorageConfValidationException | QueryHistoryEntryStorageCreationException | TransformationException | IdApplicationException | FieldRetrievalException ex) {
+                    if(communicationTreePanelDemo != null) {
+                        communicationTreePanelDemo.setVisible(false);
+                        communicationTreePanelDemo.dispose();
+                    }
                     throw new RuntimeException(ex);
                 }
             }

@@ -14,8 +14,10 @@
  */
 package richtercloud.document.scanner.it;
 
+import java.awt.HeadlessException;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -93,11 +95,24 @@ import richtercloud.validation.tools.FieldRetrievalException;
  */
 public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
     private static final long serialVersionUID = 1L;
+    private PersistenceStorage<Long> storage;
 
     /**
-     * Test of getComboBoxModelMap method, of class ValueDetectionReflectionFormBuilder.
+     * Test of getComboBoxModelMap method, of class
+     * ValueDetectionReflectionFormBuilder.
+     *
+     * @throws HeadlessException allows to skip the constructor test on a remote
+     * CI service
      */
-    public ValueDetectionReflectionFormBuilderDemo() throws IOException, QueryHistoryEntryStorageCreationException, InstantiationException, IllegalAccessException, TransformationException, StorageConfValidationException, StorageCreationException, FieldRetrievalException {
+    public ValueDetectionReflectionFormBuilderDemo() throws IOException,
+            QueryHistoryEntryStorageCreationException,
+            InstantiationException,
+            IllegalAccessException,
+            TransformationException,
+            StorageConfValidationException,
+            StorageCreationException,
+            FieldRetrievalException,
+            HeadlessException {
         //There's no mocking in integration tests, but for the GUI test it's
         //fine.
         Set<Class<?>> entityClasses = new HashSet<>(Arrays.asList(DocumentScannerExtensionsTestClass.class,
@@ -107,8 +122,9 @@ public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
                 QueryPanelTestClass.class,
                 PrimitivesTestClass.class,
                 EntityB.class));
-        File databaseDir = File.createTempFile(ValueDetectionReflectionFormBuilderDemo.class.getSimpleName(), null);
+        File databaseDir = Files.createTempDirectory(ValueDetectionReflectionFormBuilderDemo.class.getSimpleName()).toFile();
         FileUtils.forceDelete(databaseDir);
+            //databaseDir mustn't exist for Apache Derby
         String databaseName = databaseDir.getAbsolutePath();
         File schemeChecksumFile = File.createTempFile(ValueDetectionReflectionFormBuilderDemo.class.getSimpleName(), null);
         DerbyEmbeddedPersistenceStorageConf storageConf = new DerbyEmbeddedPersistenceStorageConf(entityClasses,
@@ -117,11 +133,19 @@ public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
         String persistenceUnitName = "richtercloud_document-scanner-demo_jar_1.0-SNAPSHOTPU";
         int parallelQueryCount = 20;
         JPAFieldRetriever fieldRetriever = new JPACachedFieldRetriever();
-        PersistenceStorage storage = new DerbyEmbeddedPersistenceStorage(storageConf,
+        storage = new DerbyEmbeddedPersistenceStorage(storageConf,
                 persistenceUnitName,
                 parallelQueryCount,
                 fieldRetriever);
         storage.start();
+        this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE
+            //must not be EXIT_ON_CLOSE because that terminates the
+            //application and closes all JFrames
+        );
+        GroupLayout frameLayout = new GroupLayout(this.getContentPane());
+        this.getContentPane().setLayout(frameLayout);
+        GroupLayout.Group frameLayoutHorizontalGroup = frameLayout.createSequentialGroup();
+        GroupLayout.Group frameLayoutVerticalGroup = frameLayout.createSequentialGroup();
         for(Class<?> testClass : entityClasses) {
             IssueHandler issueHandler = new DialogIssueHandler(this, "http://example.com");
             ConfirmMessageHandler confirmMessageHandler = new DialogConfirmMessageHandler(this);
@@ -213,7 +237,7 @@ public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
             FieldInitializer fieldInitializer = new ReflectionFieldInitializer(fieldRetriever);
             File entryStorageFile = File.createTempFile(ValueDetectionReflectionFormBuilderDemo.class.getSimpleName(),
                     null);
-            QueryHistoryEntryStorageFactory entryStorageFactory = new XMLFileQueryHistoryEntryStorageFactory(entryStorageFile,
+            QueryHistoryEntryStorageFactory<?> entryStorageFactory = new XMLFileQueryHistoryEntryStorageFactory(entryStorageFile,
                     entityClasses,
                     false,
                     issueHandler);
@@ -263,20 +287,20 @@ public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
                     initialQueryTextGenerator);
 
             Object entityToUpdate = testClass.newInstance();
-            ReflectionFormPanel testPanel = instance.transformEntityClass(testClass,
+            ReflectionFormPanel<?> testPanel = instance.transformEntityClass(testClass,
                     entityToUpdate,
                     fieldHandler);
-            this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE
-                //must not be EXIT_ON_CLOSE because that terminates the
-                //application and closes all JFrames
-            );
-            GroupLayout frameLayout = new GroupLayout(this.getContentPane());
-            this.getContentPane().setLayout(frameLayout);
-            frameLayout.setHorizontalGroup(frameLayout.createSequentialGroup().addComponent(testPanel));
-            frameLayout.setVerticalGroup(frameLayout.createSequentialGroup().addComponent(testPanel));
-            this.setBounds(10, 10, 800, 600);
-            this.pack();
+            frameLayoutHorizontalGroup.addComponent(testPanel);
+            frameLayoutVerticalGroup.addComponent(testPanel);
         }
+        frameLayout.setHorizontalGroup(frameLayoutHorizontalGroup);
+        frameLayout.setVerticalGroup(frameLayoutVerticalGroup);
+        this.setBounds(10, 10, 800, 600);
+        this.pack();
+    }
+
+    public PersistenceStorage<Long> getStorage() {
+        return storage;
     }
 
     /**
