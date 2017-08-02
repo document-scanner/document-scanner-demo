@@ -55,6 +55,7 @@ public class MySQLAutoPersistenceStorageConfPanelDemo extends JFrame {
             //databaseDir mustn't exist for MySQL
         File schemeChecksumFile = File.createTempFile(MySQLAutoPersistenceStorageConfPanelDemo.class.getSimpleName(), null);
         MySQLAutoPersistenceStorageConf storageConf = new MySQLAutoPersistenceStorageConf(entityClasses,
+                "localhost", //hostname
                 username,
                 databaseDir.getAbsolutePath(),
                 schemeChecksumFile);

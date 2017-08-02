@@ -58,14 +58,11 @@ import richtercloud.reflection.form.builder.ReflectionFormPanel;
 import richtercloud.reflection.form.builder.TransformationException;
 import richtercloud.reflection.form.builder.components.money.AmountMoneyCurrencyStorage;
 import richtercloud.reflection.form.builder.components.money.AmountMoneyExchangeRateRetriever;
-import richtercloud.reflection.form.builder.components.money.AmountMoneyUsageStatisticsStorage;
 import richtercloud.reflection.form.builder.components.money.FailsafeAmountMoneyExchangeRateRetriever;
 import richtercloud.reflection.form.builder.components.money.FileAmountMoneyCurrencyStorage;
-import richtercloud.reflection.form.builder.components.money.FileAmountMoneyUsageStatisticsStorage;
 import richtercloud.reflection.form.builder.fieldhandler.FieldHandler;
 import richtercloud.reflection.form.builder.fieldhandler.MappingFieldHandler;
 import richtercloud.reflection.form.builder.fieldhandler.factory.AmountMoneyMappingFieldHandlerFactory;
-import richtercloud.reflection.form.builder.jpa.IdGenerator;
 import richtercloud.reflection.form.builder.jpa.JPACachedFieldRetriever;
 import richtercloud.reflection.form.builder.jpa.JPAFieldRetriever;
 import richtercloud.reflection.form.builder.jpa.JPAReflectionFormBuilder;
@@ -102,10 +99,9 @@ import richtercloud.validation.tools.FieldRetrievalException;
 public class CommunicationTreePanelDemo extends JFrame {
     private static final long serialVersionUID = 1L;
     private final static Logger LOGGER = LoggerFactory.getLogger(CommunicationTreePanelDemo.class);
-    private final static String AMOUNT_MONEY_USAGE_STATISTICS_STORAGE_FILE_NAME = "money-usage-statistics-storage.xml";
     private final static String AMOUNT_MONEY_CURRENCY_STORAGE_FILE_NAME = "currency-storage.xml";
     private final ReflectionFormPanel<?> reflectionFormPanel;
-    private final IssueHandler messageHandler = new LoggerIssueHandler(LOGGER);
+    private final IssueHandler issueHandler = new LoggerIssueHandler(LOGGER);
     private final ConfirmMessageHandler confirmMessageHandler = new DialogConfirmMessageHandler(this);
     private final ReflectionFormBuilder<JPAFieldRetriever> reflectionFormBuilder;
     private final JPACachedFieldRetriever fieldRetriever = new JPACachedFieldRetriever();
@@ -148,7 +144,7 @@ public class CommunicationTreePanelDemo extends JFrame {
         QueryHistoryEntryStorageFactory entryStorageFactory = new XMLFileQueryHistoryEntryStorageFactory(entryStorageFile,
                 Constants.ENTITY_CLASSES,
                 false,
-                messageHandler);
+                issueHandler);
         this.entryStorage = entryStorageFactory.create();
         File databaseDir = new File("/tmp/communication-tree-panel-demo");
         File schemeChecksumFile = new File("/tmp/communcation-tree-panel-demo-checksum-file");
@@ -181,14 +177,12 @@ public class CommunicationTreePanelDemo extends JFrame {
                 String.format("%s shutdown hook", CommunicationTreePanelDemo.class.getSimpleName())
         ));
         FieldInitializer fieldInitializer = new ReflectionFieldInitializer(fieldRetriever);
-        IdGenerator<Long> idGenerator = MemorySequentialIdGenerator.getInstance();
         this.reflectionFormBuilder = new JPAReflectionFormBuilder(storage,
                 "fieldDescriptionDialogTitle",
-                messageHandler,
+                issueHandler,
                 confirmMessageHandler,
                 fieldRetriever,
                 idApplier,
-                idGenerator,
                 warningHandlers);
         Person sender = new Person(new LinkedList<>(Arrays.asList("Alice")),
                 new LinkedList<>(Arrays.asList("A")),
@@ -303,46 +297,34 @@ public class CommunicationTreePanelDemo extends JFrame {
             //reply1, reply2 and root should be stored through cascading
             //persistence
 
-        File amountMoneyUsageStatisticsStorageFile = new File( AMOUNT_MONEY_USAGE_STATISTICS_STORAGE_FILE_NAME);
         File amountMoneyCurrencyStorageFile = new File(AMOUNT_MONEY_CURRENCY_STORAGE_FILE_NAME);
-
-        AmountMoneyUsageStatisticsStorage amountMoneyUsageStatisticsStorage;
-        try {
-            amountMoneyUsageStatisticsStorage = new FileAmountMoneyUsageStatisticsStorage(amountMoneyUsageStatisticsStorageFile);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
         AmountMoneyCurrencyStorage amountMoneyCurrencyStorage = new FileAmountMoneyCurrencyStorage(amountMoneyCurrencyStorageFile);
         JPAAmountMoneyMappingTypeHandlerFactory fieldHandlerFactory = new JPAAmountMoneyMappingTypeHandlerFactory(storage,
                 Constants.INITIAL_QUERY_LIMIT_DEFAULT,
-                messageHandler,
-                Constants.BIDIRECTIONAL_HELP_DIALOG_TITLE,
+                issueHandler,
                 fieldRetriever);
         Map<java.lang.reflect.Type, TypeHandler<?,?,?,?>> typeHandlerMapping = fieldHandlerFactory.generateTypeHandlerMapping();
         cacheFileDir = Files.createTempDirectory(CommunicationTreePanelDemo.class.getSimpleName()).toFile();
         AmountMoneyExchangeRateRetriever amountMoneyExchangeRateRetriever = new FailsafeAmountMoneyExchangeRateRetriever(cacheFileDir);
 
-        AmountMoneyMappingFieldHandlerFactory embeddableFieldHandlerFactory = new AmountMoneyMappingFieldHandlerFactory(amountMoneyUsageStatisticsStorage,
-                amountMoneyCurrencyStorage,
+        AmountMoneyMappingFieldHandlerFactory embeddableFieldHandlerFactory = new AmountMoneyMappingFieldHandlerFactory(amountMoneyCurrencyStorage,
                 amountMoneyExchangeRateRetriever,
-                messageHandler);
+                issueHandler);
         FieldHandler embeddableFieldHandler = new MappingFieldHandler(embeddableFieldHandlerFactory.generateClassMapping(),
                 embeddableFieldHandlerFactory.generatePrimitiveMapping());
         ElementCollectionTypeHandler elementCollectionTypeHandler = new ElementCollectionTypeHandler(typeHandlerMapping,
                 typeHandlerMapping,
-                messageHandler,
+                issueHandler,
                 embeddableFieldHandler,
                 fieldRetriever);
         JPAAmountMoneyMappingFieldHandlerFactory jPAAmountMoneyMappingFieldHandlerFactory = JPAAmountMoneyMappingFieldHandlerFactory.create(storage,
                 Constants.INITIAL_QUERY_LIMIT_DEFAULT,
-                messageHandler,
-                amountMoneyUsageStatisticsStorage,
+                issueHandler,
                 amountMoneyCurrencyStorage,
                 amountMoneyExchangeRateRetriever,
-                Constants.BIDIRECTIONAL_HELP_DIALOG_TITLE,
                 fieldRetriever);
         ToManyTypeHandler toManyTypeHandler = new ToManyTypeHandler(storage,
-                messageHandler,
+                issueHandler,
                 typeHandlerMapping,
                 typeHandlerMapping,
                 Constants.BIDIRECTIONAL_HELP_DIALOG_TITLE,
@@ -350,7 +332,7 @@ public class CommunicationTreePanelDemo extends JFrame {
                 entryStorage,
                 fieldRetriever);
         ToOneTypeHandler toOneTypeHandler = new ToOneTypeHandler(storage,
-                messageHandler,
+                issueHandler,
                 Constants.BIDIRECTIONAL_HELP_DIALOG_TITLE,
                 fieldInitializer,
                 entryStorage,
@@ -362,9 +344,8 @@ public class CommunicationTreePanelDemo extends JFrame {
                 elementCollectionTypeHandler,
                 toManyTypeHandler,
                 toOneTypeHandler,
-                messageHandler,
+                issueHandler,
                 confirmMessageHandler,
-                fieldRetriever,
                 null, //oCRResultPanelFetcher
                 null, //scanResultPanelFetcher
                 documentScannerConf,

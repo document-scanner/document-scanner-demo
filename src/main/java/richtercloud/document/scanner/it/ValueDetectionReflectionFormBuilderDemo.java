@@ -67,10 +67,8 @@ import richtercloud.reflection.form.builder.components.money.AmountMoneyUsageSta
 import richtercloud.reflection.form.builder.components.money.MemoryAmountMoneyCurrencyStorage;
 import richtercloud.reflection.form.builder.components.money.MemoryAmountMoneyUsageStatisticsStorage;
 import richtercloud.reflection.form.builder.components.money.StaticAmountMoneyExchangeRateRetriever;
-import richtercloud.reflection.form.builder.jpa.IdGenerator;
 import richtercloud.reflection.form.builder.jpa.JPACachedFieldRetriever;
 import richtercloud.reflection.form.builder.jpa.JPAFieldRetriever;
-import richtercloud.reflection.form.builder.jpa.MemorySequentialIdGenerator;
 import richtercloud.reflection.form.builder.jpa.WarningHandler;
 import richtercloud.reflection.form.builder.jpa.idapplier.GeneratedValueIdApplier;
 import richtercloud.reflection.form.builder.jpa.idapplier.IdApplier;
@@ -150,7 +148,6 @@ public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
             IssueHandler issueHandler = new DialogIssueHandler(this, "http://example.com");
             ConfirmMessageHandler confirmMessageHandler = new DialogConfirmMessageHandler(this);
             IdApplier idApplier = new GeneratedValueIdApplier();
-            IdGenerator idGenerator = MemorySequentialIdGenerator.getInstance();
             DocumentScannerConf documentScannerConf = new DocumentScannerConf();
 
             ValueDetectionReflectionFormBuilder instance = new ValueDetectionReflectionFormBuilder(storage,
@@ -159,7 +156,6 @@ public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
                     confirmMessageHandler,
                     fieldRetriever,
                     idApplier,
-                    idGenerator,
                     new HashMap<Class<?>, WarningHandler<?>>(), //warningHandlers
                     new HashMap<Class<? extends JComponent>, ValueSetter<?,?>>(), //valueSetterMapping
                     documentScannerConf
@@ -245,7 +241,6 @@ public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
             MainPanel mainPanel = new DefaultMainPanel(entityClasses,
                     primaryClassSelection,
                     storage,
-                    amountMoneyUsageStatisticsStorage,
                     amountMoneyCurrencyStorage,
                     amountMoneyExchangeRateRetriever,
                     issueHandler,
@@ -256,7 +251,6 @@ public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
                     documentScannerConf,
                     tagStorage,
                     idApplier,
-                    idGenerator,
                     warningHandlers,
                     fieldInitializer,
                     initialQueryTextGenerator,
@@ -271,7 +265,6 @@ public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
                     confirmMessageHandler,
                     typeHandlerMapping,
                     storage,
-                    fieldRetriever,
                     fieldRetriever,
                     oCRResultPanelFetcher,
                     scanResultPanelFetcher,
