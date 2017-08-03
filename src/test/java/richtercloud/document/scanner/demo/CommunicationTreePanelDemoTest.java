@@ -20,13 +20,13 @@ import java.sql.SQLException;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import richtercloud.reflection.form.builder.ResetException;
 import richtercloud.reflection.form.builder.TransformationException;
 import richtercloud.reflection.form.builder.jpa.idapplier.IdApplicationException;
 import richtercloud.reflection.form.builder.jpa.panels.QueryHistoryEntryStorageCreationException;
 import richtercloud.reflection.form.builder.storage.StorageConfValidationException;
 import richtercloud.reflection.form.builder.storage.StorageCreationException;
 import richtercloud.reflection.form.builder.storage.StorageException;
-import richtercloud.validation.tools.FieldRetrievalException;
 
 /**
  *
@@ -48,7 +48,7 @@ public class CommunicationTreePanelDemoTest {
             QueryHistoryEntryStorageCreationException,
             IdApplicationException,
             TransformationException,
-            FieldRetrievalException {
+            ResetException {
         CommunicationTreePanelDemo instance = null;
         try {
             instance = new CommunicationTreePanelDemo();

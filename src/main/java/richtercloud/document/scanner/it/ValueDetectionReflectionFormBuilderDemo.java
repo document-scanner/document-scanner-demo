@@ -58,8 +58,12 @@ import richtercloud.document.scanner.setter.ValueSetter;
 import richtercloud.message.handler.ConfirmMessageHandler;
 import richtercloud.message.handler.DialogConfirmMessageHandler;
 import richtercloud.message.handler.DialogIssueHandler;
+import richtercloud.message.handler.DialogMessageHandler;
+import richtercloud.message.handler.ExceptionMessage;
 import richtercloud.message.handler.IssueHandler;
+import richtercloud.message.handler.MessageHandler;
 import richtercloud.reflection.form.builder.ReflectionFormPanel;
+import richtercloud.reflection.form.builder.ResetException;
 import richtercloud.reflection.form.builder.TransformationException;
 import richtercloud.reflection.form.builder.components.money.AmountMoneyCurrencyStorage;
 import richtercloud.reflection.form.builder.components.money.AmountMoneyExchangeRateRetriever;
@@ -84,7 +88,6 @@ import richtercloud.reflection.form.builder.jpa.storage.ReflectionFieldInitializ
 import richtercloud.reflection.form.builder.storage.StorageConfValidationException;
 import richtercloud.reflection.form.builder.storage.StorageCreationException;
 import richtercloud.reflection.form.builder.typehandler.TypeHandler;
-import richtercloud.validation.tools.FieldRetrievalException;
 
 /**
  * Demo for resizability of class components.
@@ -109,8 +112,9 @@ public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
             TransformationException,
             StorageConfValidationException,
             StorageCreationException,
-            FieldRetrievalException,
-            HeadlessException {
+            HeadlessException,
+            NoSuchFieldException,
+            ResetException {
         //There's no mocking in integration tests, but for the GUI test it's
         //fine.
         Set<Class<?>> entityClasses = new HashSet<>(Arrays.asList(DocumentScannerExtensionsTestClass.class,
@@ -303,10 +307,21 @@ public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
      */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
+            MessageHandler messageHandler = new DialogMessageHandler(null //parent
+            );
             try {
                 new ValueDetectionReflectionFormBuilderDemo().setVisible(true);
-            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | IOException | QueryHistoryEntryStorageCreationException | TransformationException | StorageConfValidationException | StorageCreationException | FieldRetrievalException ex) {
-                throw new RuntimeException(ex);
+            } catch (InstantiationException
+                    | IllegalAccessException
+                    | IllegalArgumentException
+                    | IOException
+                    | QueryHistoryEntryStorageCreationException
+                    | TransformationException
+                    | StorageConfValidationException
+                    | StorageCreationException
+                    | NoSuchFieldException
+                    | ResetException ex) {
+                messageHandler.handle(new ExceptionMessage(ex));
             }
         });
     }

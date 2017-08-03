@@ -19,11 +19,11 @@ import java.io.IOException;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import richtercloud.reflection.form.builder.ResetException;
 import richtercloud.reflection.form.builder.TransformationException;
 import richtercloud.reflection.form.builder.jpa.panels.QueryHistoryEntryStorageCreationException;
 import richtercloud.reflection.form.builder.storage.StorageConfValidationException;
 import richtercloud.reflection.form.builder.storage.StorageCreationException;
-import richtercloud.validation.tools.FieldRetrievalException;
 
 /**
  *
@@ -43,7 +43,8 @@ public class ValueDetectionReflectionFormBuilderDemoTest {
             TransformationException,
             StorageConfValidationException,
             StorageCreationException,
-            FieldRetrievalException {
+            NoSuchFieldException,
+            ResetException {
         ValueDetectionReflectionFormBuilderDemo instance = null;
         try {
             instance = new ValueDetectionReflectionFormBuilderDemo();

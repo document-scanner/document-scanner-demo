@@ -31,7 +31,9 @@ import richtercloud.message.handler.DialogBugHandler;
 import richtercloud.message.handler.DialogConfirmMessageHandler;
 import richtercloud.message.handler.DialogIssueHandler;
 import richtercloud.message.handler.DialogMessageHandler;
+import richtercloud.message.handler.ExceptionMessage;
 import richtercloud.message.handler.IssueHandler;
+import richtercloud.message.handler.MessageHandler;
 import richtercloud.reflection.form.builder.jpa.storage.MySQLAutoPersistenceStorageConf;
 
 /**
@@ -170,6 +172,8 @@ public class MySQLAutoPersistenceStorageConfPanelDemo extends JFrame {
 
     public static void main(String[] args) throws IOException, ExtractionException {
         EventQueue.invokeLater(() -> {
+            MessageHandler messageHandler = new DialogMessageHandler(null //parent
+            );
             MySQLAutoPersistenceStorageConfPanelDemo instance = null;
             try {
                 instance = new MySQLAutoPersistenceStorageConfPanelDemo();
@@ -179,7 +183,7 @@ public class MySQLAutoPersistenceStorageConfPanelDemo extends JFrame {
                     instance.setVisible(false);
                     instance.dispose();
                 }
-                throw new RuntimeException(ex);
+                messageHandler.handle(new ExceptionMessage(ex));
             }
         });
     }

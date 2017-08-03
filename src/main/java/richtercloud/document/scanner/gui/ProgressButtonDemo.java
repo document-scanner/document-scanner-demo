@@ -16,6 +16,9 @@
 package richtercloud.document.scanner.gui;
 
 import java.awt.HeadlessException;
+import richtercloud.message.handler.DialogMessageHandler;
+import richtercloud.message.handler.ExceptionMessage;
+import richtercloud.message.handler.MessageHandler;
 
 /**
  *
@@ -23,6 +26,7 @@ import java.awt.HeadlessException;
  */
 public class ProgressButtonDemo extends javax.swing.JFrame {
     private static final long serialVersionUID = 1L;
+    private final MessageHandler messageHandler;
 
     /**
      * Creates a new {@code ProgressButtonDemo}.
@@ -32,6 +36,8 @@ public class ProgressButtonDemo extends javax.swing.JFrame {
      */
     public ProgressButtonDemo() throws HeadlessException {
         initComponents();
+        this.messageHandler = new DialogMessageHandler(this //parent
+        );
     }
 
     /**
@@ -84,7 +90,8 @@ public class ProgressButtonDemo extends javax.swing.JFrame {
                 try {
                     Thread.sleep(200);
                 } catch (InterruptedException ex) {
-                    throw new RuntimeException(ex);
+                    messageHandler.handle(new ExceptionMessage(ex));
+                    return;
                 }
                 i++;
             }

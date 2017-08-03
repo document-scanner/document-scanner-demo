@@ -51,10 +51,14 @@ import richtercloud.document.scanner.model.TelephoneNumber;
 import richtercloud.document.scanner.model.WorkflowItem;
 import richtercloud.message.handler.ConfirmMessageHandler;
 import richtercloud.message.handler.DialogConfirmMessageHandler;
+import richtercloud.message.handler.DialogMessageHandler;
+import richtercloud.message.handler.ExceptionMessage;
 import richtercloud.message.handler.IssueHandler;
 import richtercloud.message.handler.LoggerIssueHandler;
+import richtercloud.message.handler.MessageHandler;
 import richtercloud.reflection.form.builder.ReflectionFormBuilder;
 import richtercloud.reflection.form.builder.ReflectionFormPanel;
+import richtercloud.reflection.form.builder.ResetException;
 import richtercloud.reflection.form.builder.TransformationException;
 import richtercloud.reflection.form.builder.components.money.AmountMoneyCurrencyStorage;
 import richtercloud.reflection.form.builder.components.money.AmountMoneyExchangeRateRetriever;
@@ -90,7 +94,6 @@ import richtercloud.reflection.form.builder.storage.StorageConfValidationExcepti
 import richtercloud.reflection.form.builder.storage.StorageCreationException;
 import richtercloud.reflection.form.builder.storage.StorageException;
 import richtercloud.reflection.form.builder.typehandler.TypeHandler;
-import richtercloud.validation.tools.FieldRetrievalException;
 
 /**
  *
@@ -138,8 +141,8 @@ public class CommunicationTreePanelDemo extends JFrame {
             QueryHistoryEntryStorageCreationException,
             IdApplicationException,
             TransformationException,
-            FieldRetrievalException,
-            HeadlessException {
+            HeadlessException,
+            ResetException {
         File entryStorageFile = File.createTempFile(CommunicationTreePanelDemo.class.getSimpleName(), null);
         QueryHistoryEntryStorageFactory entryStorageFactory = new XMLFileQueryHistoryEntryStorageFactory(entryStorageFile,
                 Constants.ENTITY_CLASSES,
@@ -311,7 +314,8 @@ public class CommunicationTreePanelDemo extends JFrame {
                 amountMoneyExchangeRateRetriever,
                 issueHandler);
         FieldHandler embeddableFieldHandler = new MappingFieldHandler(embeddableFieldHandlerFactory.generateClassMapping(),
-                embeddableFieldHandlerFactory.generatePrimitiveMapping());
+                embeddableFieldHandlerFactory.generatePrimitiveMapping(),
+                issueHandler);
         ElementCollectionTypeHandler elementCollectionTypeHandler = new ElementCollectionTypeHandler(typeHandlerMapping,
                 typeHandlerMapping,
                 issueHandler,
@@ -385,6 +389,8 @@ public class CommunicationTreePanelDemo extends JFrame {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        MessageHandler messageHandler = new DialogMessageHandler(null //parent
+        );
         /* Set the Nimbus look and feel */
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
@@ -397,7 +403,8 @@ public class CommunicationTreePanelDemo extends JFrame {
                 }
             }
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
-            throw new RuntimeException(ex);
+            messageHandler.handle(new ExceptionMessage(ex));
+            return;
         }
 
         /* Create and display the form */
@@ -408,12 +415,21 @@ public class CommunicationTreePanelDemo extends JFrame {
                 try {
                     communicationTreePanelDemo = new CommunicationTreePanelDemo();
                     communicationTreePanelDemo.setVisible(true);
-                } catch (IOException | StorageException | SQLException | NoSuchFieldException | StorageCreationException | StorageConfValidationException | QueryHistoryEntryStorageCreationException | TransformationException | IdApplicationException | FieldRetrievalException ex) {
+                } catch (IOException
+                        | StorageException
+                        | SQLException
+                        | NoSuchFieldException
+                        | StorageCreationException
+                        | StorageConfValidationException
+                        | QueryHistoryEntryStorageCreationException
+                        | TransformationException
+                        | IdApplicationException
+                        | ResetException ex) {
                     if(communicationTreePanelDemo != null) {
                         communicationTreePanelDemo.setVisible(false);
                         communicationTreePanelDemo.dispose();
                     }
-                    throw new RuntimeException(ex);
+                    messageHandler.handle(new ExceptionMessage(ex));
                 }
             }
         });
