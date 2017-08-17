@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import richtercloud.reflection.form.builder.ResetException;
 import richtercloud.reflection.form.builder.TransformationException;
 import richtercloud.reflection.form.builder.jpa.panels.QueryHistoryEntryStorageCreationException;
+import richtercloud.reflection.form.builder.retriever.FieldOrderValidationException;
 import richtercloud.reflection.form.builder.storage.StorageConfValidationException;
 import richtercloud.reflection.form.builder.storage.StorageCreationException;
 
@@ -44,7 +45,8 @@ public class ValueDetectionReflectionFormBuilderDemoTest {
             StorageConfValidationException,
             StorageCreationException,
             NoSuchFieldException,
-            ResetException {
+            ResetException,
+            FieldOrderValidationException {
         ValueDetectionReflectionFormBuilderDemo instance = null;
         try {
             instance = new ValueDetectionReflectionFormBuilderDemo();

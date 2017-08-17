@@ -22,6 +22,8 @@ import java.nio.file.Files;
 import java.util.Set;
 import javax.swing.JFrame;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import richtercloud.document.scanner.gui.Constants;
 import richtercloud.jhbuild.java.wrapper.ExtractionException;
 import richtercloud.jhbuild.java.wrapper.ExtractionMode;
@@ -42,6 +44,7 @@ import richtercloud.reflection.form.builder.jpa.storage.MySQLAutoPersistenceStor
  */
 public class MySQLAutoPersistenceStorageConfPanelDemo extends JFrame {
     private static final long serialVersionUID = 1L;
+    private final static Logger LOGGER = LoggerFactory.getLogger(MySQLAutoPersistenceStorageConfPanelDemo.class);
 
     public MySQLAutoPersistenceStorageConfPanelDemo() throws HeadlessException, IOException, ExtractionException {
         //Linux 32-bit
@@ -185,6 +188,8 @@ public class MySQLAutoPersistenceStorageConfPanelDemo extends JFrame {
                     instance.setVisible(false);
                     instance.dispose();
                 }
+                LOGGER.error("unexpected exception during run of demo",
+                        ex);
                 messageHandler.handle(new ExceptionMessage(ex));
             }
         });

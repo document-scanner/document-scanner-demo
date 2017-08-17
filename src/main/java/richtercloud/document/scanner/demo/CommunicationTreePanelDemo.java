@@ -67,7 +67,6 @@ import richtercloud.reflection.form.builder.components.money.FileAmountMoneyCurr
 import richtercloud.reflection.form.builder.fieldhandler.FieldHandler;
 import richtercloud.reflection.form.builder.fieldhandler.MappingFieldHandler;
 import richtercloud.reflection.form.builder.fieldhandler.factory.AmountMoneyMappingFieldHandlerFactory;
-import richtercloud.reflection.form.builder.jpa.JPACachedFieldRetriever;
 import richtercloud.reflection.form.builder.jpa.JPAFieldRetriever;
 import richtercloud.reflection.form.builder.jpa.JPAReflectionFormBuilder;
 import richtercloud.reflection.form.builder.jpa.MemorySequentialIdGenerator;
@@ -81,6 +80,7 @@ import richtercloud.reflection.form.builder.jpa.panels.QueryHistoryEntryStorage;
 import richtercloud.reflection.form.builder.jpa.panels.QueryHistoryEntryStorageCreationException;
 import richtercloud.reflection.form.builder.jpa.panels.QueryHistoryEntryStorageFactory;
 import richtercloud.reflection.form.builder.jpa.panels.XMLFileQueryHistoryEntryStorageFactory;
+import richtercloud.reflection.form.builder.jpa.retriever.JPAOrderedCachedFieldRetriever;
 import richtercloud.reflection.form.builder.jpa.storage.DerbyEmbeddedPersistenceStorage;
 import richtercloud.reflection.form.builder.jpa.storage.DerbyEmbeddedPersistenceStorageConf;
 import richtercloud.reflection.form.builder.jpa.storage.FieldInitializer;
@@ -90,6 +90,7 @@ import richtercloud.reflection.form.builder.jpa.typehandler.ElementCollectionTyp
 import richtercloud.reflection.form.builder.jpa.typehandler.ToManyTypeHandler;
 import richtercloud.reflection.form.builder.jpa.typehandler.ToOneTypeHandler;
 import richtercloud.reflection.form.builder.jpa.typehandler.factory.JPAAmountMoneyMappingTypeHandlerFactory;
+import richtercloud.reflection.form.builder.retriever.FieldOrderValidationException;
 import richtercloud.reflection.form.builder.storage.StorageConfValidationException;
 import richtercloud.reflection.form.builder.storage.StorageCreationException;
 import richtercloud.reflection.form.builder.storage.StorageException;
@@ -107,7 +108,7 @@ public class CommunicationTreePanelDemo extends JFrame {
     private final IssueHandler issueHandler = new LoggerIssueHandler(LOGGER);
     private final ConfirmMessageHandler confirmMessageHandler = new DialogConfirmMessageHandler(this);
     private final ReflectionFormBuilder<JPAFieldRetriever> reflectionFormBuilder;
-    private final JPACachedFieldRetriever fieldRetriever = new JPACachedFieldRetriever();
+    private final JPAFieldRetriever fieldRetriever;
     private final IdApplier<LongIdPanel> idApplier = new LongIdPanelIdApplier(MemorySequentialIdGenerator.getInstance());
     private final Map<Class<?>, WarningHandler<?>> warningHandlers = new HashMap<>();
     private final TagStorage tagStorage = new MemoryTagStorage();
@@ -142,7 +143,8 @@ public class CommunicationTreePanelDemo extends JFrame {
             IdApplicationException,
             TransformationException,
             HeadlessException,
-            ResetException {
+            ResetException,
+            FieldOrderValidationException {
         File entryStorageFile = File.createTempFile(CommunicationTreePanelDemo.class.getSimpleName(), null);
         QueryHistoryEntryStorageFactory entryStorageFactory = new XMLFileQueryHistoryEntryStorageFactory(entryStorageFile,
                 Constants.ENTITY_CLASSES,
@@ -155,6 +157,7 @@ public class CommunicationTreePanelDemo extends JFrame {
                 databaseDir.getAbsolutePath(),
                 schemeChecksumFile);
         DriverManager.getConnection(storageConf.getConnectionURL()+";create=true");
+        this.fieldRetriever = new JPAOrderedCachedFieldRetriever(Constants.ENTITY_AND_EMBEDDABLE_CLASSES);
         storage = new DerbyEmbeddedPersistenceStorage(storageConf,
                 "richtercloud_document-scanner-demo_jar_1.0-SNAPSHOTPU",
                 1, //parallelQueryCount
@@ -424,11 +427,14 @@ public class CommunicationTreePanelDemo extends JFrame {
                         | QueryHistoryEntryStorageCreationException
                         | TransformationException
                         | IdApplicationException
-                        | ResetException ex) {
+                        | ResetException
+                        | FieldOrderValidationException ex) {
                     if(communicationTreePanelDemo != null) {
                         communicationTreePanelDemo.setVisible(false);
                         communicationTreePanelDemo.dispose();
                     }
+                    LOGGER.error("unexpected exception during run of demo",
+                            ex);
                     messageHandler.handle(new ExceptionMessage(ex));
                 }
             }

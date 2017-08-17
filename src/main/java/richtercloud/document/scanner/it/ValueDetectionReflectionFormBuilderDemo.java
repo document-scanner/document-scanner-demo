@@ -32,6 +32,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import org.apache.commons.collections4.OrderedMap;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import richtercloud.document.scanner.components.OCRResultPanelFetcher;
 import richtercloud.document.scanner.components.OCRResultPanelFetcherProgressListener;
 import richtercloud.document.scanner.components.ScanResultPanelFetcher;
@@ -54,6 +56,7 @@ import richtercloud.document.scanner.it.entities.EntityB;
 import richtercloud.document.scanner.it.entities.ListTestClass;
 import richtercloud.document.scanner.it.entities.PrimitivesTestClass;
 import richtercloud.document.scanner.it.entities.QueryPanelTestClass;
+import richtercloud.document.scanner.model.WorkflowItem;
 import richtercloud.document.scanner.setter.ValueSetter;
 import richtercloud.message.handler.ConfirmMessageHandler;
 import richtercloud.message.handler.DialogConfirmMessageHandler;
@@ -71,7 +74,6 @@ import richtercloud.reflection.form.builder.components.money.AmountMoneyUsageSta
 import richtercloud.reflection.form.builder.components.money.MemoryAmountMoneyCurrencyStorage;
 import richtercloud.reflection.form.builder.components.money.MemoryAmountMoneyUsageStatisticsStorage;
 import richtercloud.reflection.form.builder.components.money.StaticAmountMoneyExchangeRateRetriever;
-import richtercloud.reflection.form.builder.jpa.JPACachedFieldRetriever;
 import richtercloud.reflection.form.builder.jpa.JPAFieldRetriever;
 import richtercloud.reflection.form.builder.jpa.WarningHandler;
 import richtercloud.reflection.form.builder.jpa.idapplier.GeneratedValueIdApplier;
@@ -80,11 +82,13 @@ import richtercloud.reflection.form.builder.jpa.panels.QueryHistoryEntryStorage;
 import richtercloud.reflection.form.builder.jpa.panels.QueryHistoryEntryStorageCreationException;
 import richtercloud.reflection.form.builder.jpa.panels.QueryHistoryEntryStorageFactory;
 import richtercloud.reflection.form.builder.jpa.panels.XMLFileQueryHistoryEntryStorageFactory;
+import richtercloud.reflection.form.builder.jpa.retriever.JPAOrderedCachedFieldRetriever;
 import richtercloud.reflection.form.builder.jpa.storage.DerbyEmbeddedPersistenceStorage;
 import richtercloud.reflection.form.builder.jpa.storage.DerbyEmbeddedPersistenceStorageConf;
 import richtercloud.reflection.form.builder.jpa.storage.FieldInitializer;
 import richtercloud.reflection.form.builder.jpa.storage.PersistenceStorage;
 import richtercloud.reflection.form.builder.jpa.storage.ReflectionFieldInitializer;
+import richtercloud.reflection.form.builder.retriever.FieldOrderValidationException;
 import richtercloud.reflection.form.builder.storage.StorageConfValidationException;
 import richtercloud.reflection.form.builder.storage.StorageCreationException;
 import richtercloud.reflection.form.builder.typehandler.TypeHandler;
@@ -96,6 +100,7 @@ import richtercloud.reflection.form.builder.typehandler.TypeHandler;
  */
 public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
     private static final long serialVersionUID = 1L;
+    private final static Logger LOGGER = LoggerFactory.getLogger(ValueDetectionReflectionFormBuilderDemo.class);
     private PersistenceStorage<Long> storage;
 
     /**
@@ -114,7 +119,8 @@ public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
             StorageCreationException,
             HeadlessException,
             NoSuchFieldException,
-            ResetException {
+            ResetException,
+            FieldOrderValidationException {
         //There's no mocking in integration tests, but for the GUI test it's
         //fine.
         Set<Class<?>> entityClasses = new HashSet<>(Arrays.asList(DocumentScannerExtensionsTestClass.class,
@@ -124,6 +130,10 @@ public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
                 QueryPanelTestClass.class,
                 PrimitivesTestClass.class,
                 EntityB.class));
+        Set<Class<?>> retrieverEntityClasses = new HashSet<>(entityClasses);
+            //WorkflowTreeItemPanel uses FieldRetriever.retrieveRelevantClasses
+            //with WorkflowItem.class
+        retrieverEntityClasses.add(WorkflowItem.class);
         File databaseDir = Files.createTempDirectory(ValueDetectionReflectionFormBuilderDemo.class.getSimpleName()).toFile();
         FileUtils.forceDelete(databaseDir);
             //databaseDir mustn't exist for Apache Derby
@@ -134,7 +144,7 @@ public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
                 schemeChecksumFile);
         String persistenceUnitName = "richtercloud_document-scanner-demo_jar_1.0-SNAPSHOTPU";
         int parallelQueryCount = 20;
-        JPAFieldRetriever fieldRetriever = new JPACachedFieldRetriever();
+        JPAFieldRetriever fieldRetriever = new JPAOrderedCachedFieldRetriever(retrieverEntityClasses);
         storage = new DerbyEmbeddedPersistenceStorage(storageConf,
                 persistenceUnitName,
                 parallelQueryCount,
@@ -258,7 +268,6 @@ public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
                     warningHandlers,
                     fieldInitializer,
                     initialQueryTextGenerator,
-                    fieldRetriever,
                     fieldRetriever);
             int initialQueryLimit = 20;
             String bidirectionalHelpDialogTitle = "Title";
@@ -320,7 +329,10 @@ public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
                     | StorageConfValidationException
                     | StorageCreationException
                     | NoSuchFieldException
-                    | ResetException ex) {
+                    | ResetException
+                    | FieldOrderValidationException ex) {
+                LOGGER.error("unexpected exception during run of demo",
+                        ex);
                 messageHandler.handle(new ExceptionMessage(ex));
             }
         });

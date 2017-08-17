@@ -24,6 +24,7 @@ import richtercloud.reflection.form.builder.ResetException;
 import richtercloud.reflection.form.builder.TransformationException;
 import richtercloud.reflection.form.builder.jpa.idapplier.IdApplicationException;
 import richtercloud.reflection.form.builder.jpa.panels.QueryHistoryEntryStorageCreationException;
+import richtercloud.reflection.form.builder.retriever.FieldOrderValidationException;
 import richtercloud.reflection.form.builder.storage.StorageConfValidationException;
 import richtercloud.reflection.form.builder.storage.StorageCreationException;
 import richtercloud.reflection.form.builder.storage.StorageException;
@@ -48,7 +49,8 @@ public class CommunicationTreePanelDemoTest {
             QueryHistoryEntryStorageCreationException,
             IdApplicationException,
             TransformationException,
-            ResetException {
+            ResetException,
+            FieldOrderValidationException {
         CommunicationTreePanelDemo instance = null;
         try {
             instance = new CommunicationTreePanelDemo();
