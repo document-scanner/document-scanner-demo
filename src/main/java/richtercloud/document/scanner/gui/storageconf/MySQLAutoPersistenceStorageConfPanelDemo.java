@@ -52,6 +52,7 @@ public class MySQLAutoPersistenceStorageConfPanelDemo extends JFrame {
         final String md5SumLinux32 = MySQLAutoPersistenceStorageConfPanel.MD5_SUM_LINUX_32;
         Set<Class<?>> entityClasses = Constants.ENTITY_CLASSES;
         String username = "documentScanner";
+        String databaseName = "document-scanner";
         File databaseDir = Files.createTempDirectory(MySQLAutoPersistenceStorageConfPanelDemo.class.getSimpleName()).toFile();
         FileUtils.forceDelete(databaseDir);
             //databaseDir mustn't exist for MySQL
@@ -59,6 +60,7 @@ public class MySQLAutoPersistenceStorageConfPanelDemo extends JFrame {
         MySQLAutoPersistenceStorageConf storageConf = new MySQLAutoPersistenceStorageConf(entityClasses,
                 "localhost", //hostname
                 username,
+                databaseName,
                 databaseDir.getAbsolutePath(),
                 schemeChecksumFile);
         IssueHandler issueHandler = new DialogIssueHandler(new DialogMessageHandler(null //parent
