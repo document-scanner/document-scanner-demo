@@ -157,7 +157,7 @@ public class CommunicationTreePanelDemo extends JFrame {
                 databaseDir.getAbsolutePath(),
                 schemeChecksumFile);
         DriverManager.getConnection(storageConf.getConnectionURL()+";create=true");
-        this.fieldRetriever = new JPAOrderedCachedFieldRetriever(Constants.ENTITY_AND_EMBEDDABLE_CLASSES);
+        this.fieldRetriever = new JPAOrderedCachedFieldRetriever(Constants.QUERYABLE_AND_EMBEDDABLE_CLASSES);
         storage = new DerbyEmbeddedPersistenceStorage(storageConf,
                 "richtercloud_document-scanner-demo_jar_1.0-SNAPSHOTPU",
                 1, //parallelQueryCount
