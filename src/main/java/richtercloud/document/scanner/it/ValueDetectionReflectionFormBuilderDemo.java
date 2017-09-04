@@ -41,6 +41,7 @@ import richtercloud.document.scanner.components.ValueDetectionReflectionFormBuil
 import richtercloud.document.scanner.components.tag.MemoryTagStorage;
 import richtercloud.document.scanner.components.tag.TagStorage;
 import richtercloud.document.scanner.gui.DefaultMainPanel;
+import richtercloud.document.scanner.gui.DocumentScanner;
 import richtercloud.document.scanner.gui.DocumentScannerFieldHandler;
 import richtercloud.document.scanner.gui.conf.DocumentScannerConf;
 import richtercloud.document.scanner.ifaces.ImageWrapper;
@@ -254,6 +255,7 @@ public class ValueDetectionReflectionFormBuilderDemo extends JFrame {
             QueryHistoryEntryStorage initialQueryTextGenerator = entryStorageFactory.create();
             MainPanel mainPanel = new DefaultMainPanel(entityClasses,
                     primaryClassSelection,
+                    DocumentScanner.generateValueSetterMapping(storage),
                     storage,
                     amountMoneyCurrencyStorage,
                     amountMoneyExchangeRateRetriever,
