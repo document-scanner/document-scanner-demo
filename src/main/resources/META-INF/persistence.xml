@@ -2,33 +2,33 @@
 <persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
   <persistence-unit name="richtercloud_document-scanner-demo_jar_1.0-SNAPSHOTPU" transaction-type="RESOURCE_LOCAL">
     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-    <class>richtercloud.document.scanner.model.APackage</class>
-    <class>richtercloud.document.scanner.model.Bill</class>
-    <class>richtercloud.document.scanner.model.Company</class>
-    <class>richtercloud.document.scanner.model.Document</class>
-    <class>richtercloud.document.scanner.model.Email</class>
-    <class>richtercloud.document.scanner.model.EmailAddress</class>
-    <class>richtercloud.document.scanner.model.Employment</class>
-    <class>richtercloud.document.scanner.model.FinanceAccount</class>
-    <class>richtercloud.document.scanner.model.Leaflet</class>
-    <class>richtercloud.document.scanner.model.Location</class>
-    <class>richtercloud.document.scanner.model.Payment</class>
-    <class>richtercloud.document.scanner.model.Person</class>
-    <class>richtercloud.document.scanner.model.Shipping</class>
-    <class>richtercloud.document.scanner.model.TelephoneCall</class>
-    <class>richtercloud.document.scanner.model.TelephoneNumber</class>
-    <class>richtercloud.document.scanner.model.Transport</class>
-    <class>richtercloud.document.scanner.model.TransportTicket</class>
-    <class>richtercloud.document.scanner.model.Withdrawal</class>
-    <class>richtercloud.document.scanner.model.Workflow</class>
-    <class>richtercloud.document.scanner.model.WorkflowItem</class>
-    <class>richtercloud.document.scanner.it.entities.AmountMoneyPanelTestClass</class>
-    <class>richtercloud.document.scanner.it.entities.DatePickerTestClass</class>
-    <class>richtercloud.document.scanner.it.entities.DocumentScannerExtensionsTestClass</class>
-    <class>richtercloud.document.scanner.it.entities.EntityB</class>
-    <class>richtercloud.document.scanner.it.entities.ListTestClass</class>
-    <class>richtercloud.document.scanner.it.entities.PrimitivesTestClass</class>
-    <class>richtercloud.document.scanner.it.entities.QueryPanelTestClass</class>
+    <class>de.richtercloud.document.scanner.model.APackage</class>
+    <class>de.richtercloud.document.scanner.model.Bill</class>
+    <class>de.richtercloud.document.scanner.model.Company</class>
+    <class>de.richtercloud.document.scanner.model.Document</class>
+    <class>de.richtercloud.document.scanner.model.Email</class>
+    <class>de.richtercloud.document.scanner.model.EmailAddress</class>
+    <class>de.richtercloud.document.scanner.model.Employment</class>
+    <class>de.richtercloud.document.scanner.model.FinanceAccount</class>
+    <class>de.richtercloud.document.scanner.model.Leaflet</class>
+    <class>de.richtercloud.document.scanner.model.Location</class>
+    <class>de.richtercloud.document.scanner.model.Payment</class>
+    <class>de.richtercloud.document.scanner.model.Person</class>
+    <class>de.richtercloud.document.scanner.model.Shipping</class>
+    <class>de.richtercloud.document.scanner.model.TelephoneCall</class>
+    <class>de.richtercloud.document.scanner.model.TelephoneNumber</class>
+    <class>de.richtercloud.document.scanner.model.Transport</class>
+    <class>de.richtercloud.document.scanner.model.TransportTicket</class>
+    <class>de.richtercloud.document.scanner.model.Withdrawal</class>
+    <class>de.richtercloud.document.scanner.model.Workflow</class>
+    <class>de.richtercloud.document.scanner.model.WorkflowItem</class>
+    <class>de.richtercloud.document.scanner.it.entities.AmountMoneyPanelTestClass</class>
+    <class>de.richtercloud.document.scanner.it.entities.DatePickerTestClass</class>
+    <class>de.richtercloud.document.scanner.it.entities.DocumentScannerExtensionsTestClass</class>
+    <class>de.richtercloud.document.scanner.it.entities.EntityB</class>
+    <class>de.richtercloud.document.scanner.it.entities.ListTestClass</class>
+    <class>de.richtercloud.document.scanner.it.entities.PrimitivesTestClass</class>
+    <class>de.richtercloud.document.scanner.it.entities.QueryPanelTestClass</class>
     <properties>
       <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider"/>
       <property name="javax.persistence.schema-generation.database.action" value="create-or-extend-tables"/>
